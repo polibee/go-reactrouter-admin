@@ -64,7 +64,7 @@ The implementation should be executed as several independently reviewable sub-pr
 - [ ] Start the frontend development server and verify the authentication shell, users resource, roles resource, permissions resource, and resource-engine routes.
 - [x] Create the backend health endpoint `GET /health` returning `{ "data": { "status": "ok" } }`.
 - [x] Run the frontend validation command and the backend unit test command.
-- [ ] Commit the baseline as `chore: establish goravel reactrouter integration boundary`.
+- [x] Commit the baseline as `feat: establish goravel reactrouter plugin platform foundation`.
 
 **Acceptance:** A new developer can clone the integration project, start frontend and backend independently, and identify which code belongs to Core, Resource Engine, and future plugins.
 
@@ -102,7 +102,7 @@ The implementation should be executed as several independently reviewable sub-pr
 - [x] Make the Go contract package reject malformed manifests without starting a process.
 - [x] Make the TypeScript runtime types represent both trusted ESM plugins and sandboxed iframe plugins.
 - [x] Run Go contract tests and TypeScript typecheck.
-- [ ] Commit as `feat: define plugin and api contracts`.
+- [x] Commit as `feat: establish goravel reactrouter plugin platform foundation`.
 
 **Acceptance:** Backend, frontend, packaging tools, and plugins can compile against the same manifest and API contract without importing each other's internal code.
 
