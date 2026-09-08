@@ -47,6 +47,28 @@ go mod tidy
 go run .
 ```
 
+### Database drivers
+
+Core migrations and ORM configuration support PostgreSQL and MySQL/MariaDB.
+Select the driver in `backend/.env` with `DB_CONNECTION=postgres` or
+`DB_CONNECTION=mysql`; the default ports are 5432 and 3306 respectively.
+Keep separate databases for development and integration tests. Database
+installation is expected to be managed by the local Baota panel; Docker is not
+required by this project.
+
+The Core write APIs are documented in `contracts/core-admin.openapi.json` and
+are exposed under `/api/v1/admin`. Create/update operations write an audit row
+in the same database transaction as the resource mutation. To run the real
+database suite against a dedicated database, set `DB_INTEGRATION=1` and run:
+
+```text
+cd backend
+DB_CONNECTION=postgres DB_INTEGRATION=1 go test ./tests/integration -count=1
+DB_CONNECTION=mysql DB_INTEGRATION=1 go test ./tests/integration -count=1
+```
+
+The normal `go test ./...` command skips this destructive integration suite.
+
 The backend health endpoints are `GET /` and `GET /health`. Main business modules are added under `backend/modules/` and `admin/app/modules/`; runtime-installable plugins use `plugins/` and `admin/app/core/extensions/`.
 
 ## Documentation

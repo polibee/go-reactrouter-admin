@@ -13,8 +13,8 @@ import (
 // permission middleware without changing the frontend contract.
 func API() {
 	authController := controllers.NewAuthController()
-	resourceController := controllers.NewCoreResourceController()
 	resolver := middleware.NewDatabaseUserResolver()
+	resourceController := controllers.NewCoreResourceController(resolver)
 
 	facades.Route().Prefix("/api/v1/auth").Post("/login", func(ctx http.Context) http.Response {
 		return authController.Login(ctx)
@@ -46,5 +46,51 @@ func API() {
 	})
 	admin.Middleware(middleware.RequirePermission("audit.view", resolver)).Get("/audit-logs", func(ctx http.Context) http.Response {
 		return resourceController.AuditLogs(ctx)
+	})
+
+	admin.Middleware(middleware.RequirePermission("users.create", resolver)).Post("/users", func(ctx http.Context) http.Response {
+		return resourceController.CreateUser(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("users.update", resolver)).Put("/users/{id}", func(ctx http.Context) http.Response {
+		return resourceController.UpdateUser(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("users.delete", resolver)).Delete("/users/{id}", func(ctx http.Context) http.Response {
+		return resourceController.DeleteUser(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("roles.create", resolver)).Post("/roles", func(ctx http.Context) http.Response {
+		return resourceController.CreateRole(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("roles.update", resolver)).Put("/roles/{id}", func(ctx http.Context) http.Response {
+		return resourceController.UpdateRole(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("roles.delete", resolver)).Delete("/roles/{id}", func(ctx http.Context) http.Response {
+		return resourceController.DeleteRole(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("permissions.create", resolver)).Post("/permissions", func(ctx http.Context) http.Response {
+		return resourceController.CreatePermission(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("permissions.update", resolver)).Put("/permissions/{id}", func(ctx http.Context) http.Response {
+		return resourceController.UpdatePermission(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("permissions.delete", resolver)).Delete("/permissions/{id}", func(ctx http.Context) http.Response {
+		return resourceController.DeletePermission(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("menus.create", resolver)).Post("/menus", func(ctx http.Context) http.Response {
+		return resourceController.CreateMenu(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("menus.update", resolver)).Put("/menus/{id}", func(ctx http.Context) http.Response {
+		return resourceController.UpdateMenu(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("menus.delete", resolver)).Delete("/menus/{id}", func(ctx http.Context) http.Response {
+		return resourceController.DeleteMenu(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("settings.create", resolver)).Post("/settings", func(ctx http.Context) http.Response {
+		return resourceController.CreateSetting(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("settings.update", resolver)).Put("/settings/{id}", func(ctx http.Context) http.Response {
+		return resourceController.UpdateSetting(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("settings.delete", resolver)).Delete("/settings/{id}", func(ctx http.Context) http.Response {
+		return resourceController.DeleteSetting(ctx)
 	})
 }

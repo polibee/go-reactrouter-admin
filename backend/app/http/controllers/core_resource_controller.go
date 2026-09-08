@@ -6,6 +6,7 @@ import (
 	contractshttp "github.com/goravel/framework/contracts/http"
 
 	"github.com/polibee/go-reactrouter/backend/app/facades"
+	"github.com/polibee/go-reactrouter/backend/app/http/middleware"
 	"github.com/polibee/go-reactrouter/backend/app/models"
 	"github.com/polibee/go-reactrouter/backend/internal/contracts"
 )
@@ -13,10 +14,16 @@ import (
 // CoreResourceController exposes the read side of Core's administrative
 // resources. Write operations will use the same DTO and permission boundary
 // once validation and audit transactions are added in the next slice.
-type CoreResourceController struct{}
+type CoreResourceController struct {
+	resolver middleware.UserResolver
+}
 
-func NewCoreResourceController() *CoreResourceController {
-	return &CoreResourceController{}
+func NewCoreResourceController(resolvers ...middleware.UserResolver) *CoreResourceController {
+	controller := &CoreResourceController{}
+	if len(resolvers) > 0 {
+		controller.resolver = resolvers[0]
+	}
+	return controller
 }
 
 func (controller *CoreResourceController) Users(ctx contractshttp.Context) contractshttp.Response {
@@ -104,18 +111,27 @@ func (controller *CoreResourceController) Permissions(ctx contractshttp.Context)
 func (controller *CoreResourceController) Menus(ctx contractshttp.Context) contractshttp.Response {
 	query := listQueryFromRequest(ctx)
 	menus := make([]models.Menu, 0)
-	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Menu{}).OrderBy("sort").OrderBy("id")
+	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Menu{}).Where("is_visible", true).OrderBy("sort").OrderBy("id")
 	if query.Search != "" {
 		databaseQuery = databaseQuery.WhereAny([]string{"key", "label"}, "like", "%"+query.Search+"%")
 	}
 
-	var total int64
-	if err := databaseQuery.Paginate(query.Page, query.PageSize, &menus, &total); err != nil {
+	if err := databaseQuery.Get(&menus); err != nil {
+		return resourceLookupFailure(ctx, "menus")
+	}
+	if controller.resolver == nil {
+		return resourceLookupFailure(ctx, "menus")
+	}
+	user, err := controller.resolver.Resolve(ctx)
+	if err != nil || user == nil {
 		return resourceLookupFailure(ctx, "menus")
 	}
 
 	items := make([]MenuListItem, 0, len(menus))
 	for _, menu := range menus {
+		if menu.Permission != nil && !user.Allows(*menu.Permission) {
+			continue
+		}
 		items = append(items, MenuListItem{
 			ID:         strconv.FormatUint(uint64(menu.ID), 10),
 			Key:        menu.Key,
@@ -130,7 +146,8 @@ func (controller *CoreResourceController) Menus(ctx contractshttp.Context) contr
 		})
 	}
 
-	return paginatedResponse(ctx, items, query, total)
+	pageItems, total := paginateItems(items, query)
+	return paginatedResponse(ctx, pageItems, query, total)
 }
 
 func (controller *CoreResourceController) Settings(ctx contractshttp.Context) contractshttp.Response {
@@ -211,4 +228,17 @@ func uintPointerToString(value *uint) *string {
 	}
 	result := strconv.FormatUint(uint64(*value), 10)
 	return &result
+}
+
+func paginateItems[T any](items []T, query ListQuery) ([]T, int64) {
+	total := int64(len(items))
+	start := (query.Page - 1) * query.PageSize
+	if start >= len(items) {
+		return []T{}, total
+	}
+	end := start + query.PageSize
+	if end > len(items) {
+		end = len(items)
+	}
+	return items[start:end], total
 }

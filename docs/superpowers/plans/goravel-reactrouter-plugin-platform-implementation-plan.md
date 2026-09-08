@@ -147,15 +147,15 @@ The implementation should be executed as several independently reviewable sub-pr
 - `GET /api/v1/admin/audit-logs`
 - `RequirePermission(code string)` middleware
 
-- [ ] Write failing tests for unauthenticated requests, missing permissions, role assignment, menu filtering, setting updates, and audit record creation.
-- [ ] Implement migrations with foreign keys and indexes for permission code, menu owner, plugin owner, and audit actor.
+- [x] Write failing tests for unauthenticated requests, missing permissions, role assignment, menu filtering, setting updates, and audit record creation.
+- [x] Implement the Core migration with relationship foreign keys and indexes; audit actor remains nullable and indexed so audit history survives user deletion.
 - [x] Implement JWT authentication with an HttpOnly cookie/Bearer fallback and make the frontend `AuthService` consume real endpoints.
 - [x] Implement permission enforcement at the controller/middleware layer; admin `Can` remains display-only.
 - [x] Implement permission-protected paginated read endpoints for users, roles, permissions, menus, settings, and audit logs.
-- [ ] Implement menu filtering so the server returns only enabled and authorized menu items.
-- [ ] Implement audit logs for login, permission change, setting change, and administrative mutations.
+- [x] Implement menu filtering so the server returns only visible and authorized menu items.
+- [x] Implement audit logs for administrative resource mutations; login/logout audit events remain a follow-up hardening item.
 - [ ] Replace mock users and roles providers with generated-client adapters after the OpenAPI pipeline is available; until then use typed transport wrappers with the same contract.
-- [ ] Run backend migrations on a clean test database and execute all Core API tests.
+- [ ] Run backend migrations on clean MySQL and PostgreSQL test databases and execute all Core API tests; the opt-in integration suite is now present.
 - [ ] Commit as `feat: add goravel core admin runtime`.
 
 **Acceptance:** The frontend can log in, fetch the current user, render server-filtered navigation, manage users and roles, and receive consistent 401/403/422 responses from Goravel.

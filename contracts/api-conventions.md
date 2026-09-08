@@ -64,6 +64,23 @@ read endpoints for users, roles, permissions, menus, settings, and audit logs.
 Each endpoint accepts `page`, `pageSize` (capped at 100), and `search`, and
 returns a `data` array with `meta.page`, `meta.pageSize`, and `meta.total`.
 
+Core resource writes use the same paths with REST semantics:
+
+| Resource | Create | Update | Delete | Permission namespace |
+| --- | --- | --- | --- | --- |
+| users | `POST /users` | `PUT /users/{id}` | `DELETE /users/{id}` | `users.*` |
+| roles | `POST /roles` | `PUT /roles/{id}` | `DELETE /roles/{id}` | `roles.*` |
+| permissions | `POST /permissions` | `PUT /permissions/{id}` | `DELETE /permissions/{id}` | `permissions.*` |
+| menus | `POST /menus` | `PUT /menus/{id}` | `DELETE /menus/{id}` | `menus.*` |
+| settings | `POST /settings` | `PUT /settings/{id}` | `DELETE /settings/{id}` | `settings.*` |
+
+Create returns 201 with the resource envelope, update returns 200 with the
+resource envelope, and delete returns 204 with no body. Each successful write
+creates `created`, `updated`, or `deleted` audit data in the same transaction;
+if either the mutation or audit insert fails, the transaction is rolled back.
+The server-side menu read returns only visible items allowed by the current
+user's permissions.
+
 ## Required status codes
 
 | Status | Meaning |

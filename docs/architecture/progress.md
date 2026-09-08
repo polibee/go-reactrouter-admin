@@ -1,10 +1,10 @@
 # Development Progress
 
-更新时间：2026-09-08
+更新时间：2026-09-09
 
 ## 当前结论
 
-项目已经进入 Stage 2 Core 基础实现阶段。当前完成的是可运行的 Goravel + ReactRouterAdmin 工程边界、主业务模块注册边界、插件与 API 共享契约，以及 Core 身份/授权基础；用户/角色/权限等后台资源写入 CRUD、插件安装器和独立插件进程仍未完成。
+项目已经完成 Stage 2 Core 资源写入的第一轮实现，进入真实 MySQL/PostgreSQL 环境验证阶段。主业务仍采用编译进主应用的模块化方式；运行时插件、插件安装器和独立插件进程仍未完成。
 
 ## 已完成
 
@@ -22,10 +22,16 @@
 - Core Auth OpenAPI 合同已加入 `contracts/core-auth.openapi.json`，并补充了开发环境的带凭据 CORS 配置。
 - 主应用目录已统一为 `admin/`；插件 manifest 的 `frontend` 字段仍保留为协议字段，不与主应用目录混淆。
 - Stage 2 第一批资源 API 已加入：按权限保护的用户、角色、权限、菜单、设置、审计日志分页/搜索只读接口，并有 `contracts/core-admin.openapi.json` 合同。
+- Core 数据库配置已同时接入 PostgreSQL 和 MySQL/MariaDB 驱动，`DB_CONNECTION` 可切换，端口可自动使用 5432/3306。
+- Core 用户、角色、权限、菜单、设置已加入创建、修改、删除 API，并按资源权限分别保护。
+- Core 写操作使用数据库事务；资源变更与 `audit_logs` 审计记录在同一事务内提交或回滚。
+- 菜单 API 已在服务端过滤不可见或当前用户无权限的菜单。
+- `backend/tests/integration/core_resources_test.go` 已覆盖真实 HTTP 登录、五类资源 CRUD、审计记录和迁移刷新；默认跳过，需 `DB_INTEGRATION=1` 且使用专用数据库。
+- Core Admin OpenAPI 合同已补充写入请求、路径参数、创建/修改/删除操作。
 
 ## 未完成
 
-- Stage 2：用户/角色/权限/菜单/设置/审计写入 CRUD、审计写入链路、干净数据库迁移测试、权限加载的数据库集成测试仍待完成。
+- Stage 2：需要在宝塔安装并配置 MySQL、PostgreSQL 后，分别运行真实数据库集成测试；随后补充 OpenAPI 生成器和前端写入资源页面。
 - Stage 3：插件包校验、签名、依赖和持久化模型。
 - Stage 4：插件独立进程、健康检查、网关和生命周期控制。
 - Stage 5：OpenAPI 生成器、Swagger 聚合和 TypeScript client 生成流水线。
@@ -39,4 +45,5 @@
 - `admin`: 本轮 `pnpm typecheck` 未能在 `/mnt/d` 完成，React Router 类型生成再次卡在 Windows 挂载目录文件 I/O；不能把该命令标记为通过。
 - 开发服务：`pnpm dev --host 0.0.0.0` 最终监听 `5173`，但 `/` 请求在 `/mnt/d` 下超过 20 秒无响应；开发前端应复制到 WSL 原生目录后运行。
 - OpenAPI JSON 可被 Node 原生 JSON parser 解析。
+- 默认 Go 测试包含集成测试包，但因未设置 `DB_INTEGRATION=1` 会安全跳过真实数据库操作。
 - ReactRouterAdmin 在 `/mnt/d` Windows 挂载目录启动开发服务时，首次 SSR 请求出现长时间阻塞；进程处于文件 I/O 等待状态。这是 WSL 跨文件系统开发目录的环境限制，需迁移到 WSL 原生目录或使用构建产物部署后再做浏览器 E2E。

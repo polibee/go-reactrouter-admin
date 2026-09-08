@@ -2,29 +2,50 @@ package config
 
 import (
 	"github.com/goravel/framework/contracts/database/driver"
+	mysqlfacades "github.com/goravel/mysql/facades"
 	postgresfacades "github.com/goravel/postgres/facades"
 	"github.com/polibee/go-reactrouter/backend/app/facades"
 )
 
 func init() {
 	config := facades.Config()
+	connection := normalizeDatabaseConnection(envString(config.Env("DB_CONNECTION"), "postgres"))
+	port := config.Env("DB_PORT", defaultDatabasePort(connection))
+	host := config.Env("DB_HOST", "127.0.0.1")
+	database := config.Env("DB_DATABASE")
+	username := config.Env("DB_USERNAME")
+	password := config.Env("DB_PASSWORD")
 	config.Add("database", map[string]any{
 		// Default database connection name
-		"default": config.Env("DB_CONNECTION"),
+		"default": connection,
 		// Database connections
 		"connections": map[string]any{
 			"postgres": map[string]any{
-				"host":     config.Env("DB_HOST"),
-				"port":     config.Env("DB_PORT"),
-				"database": config.Env("DB_DATABASE"),
-				"username": config.Env("DB_USERNAME"),
-				"password": config.Env("DB_PASSWORD"),
+				"host":     host,
+				"port":     port,
+				"database": database,
+				"username": username,
+				"password": password,
 				"sslmode":  "disable",
 				"singular": false,
 				"prefix":   "",
 				"schema":   config.Env("DB_SCHEMA", "public"),
 				"via": func() (driver.Driver, error) {
 					return postgresfacades.Postgres("postgres")
+				},
+			},
+			"mysql": map[string]any{
+				"host":     host,
+				"port":     port,
+				"database": database,
+				"username": username,
+				"password": password,
+				"charset":  config.Env("DB_CHARSET", "utf8mb4"),
+				"loc":      config.Env("DB_TIMEZONE", "UTC"),
+				"singular": false,
+				"prefix":   "",
+				"via": func() (driver.Driver, error) {
+					return mysqlfacades.Mysql("mysql")
 				},
 			},
 		},
@@ -73,4 +94,12 @@ func init() {
 			"table": "migrations",
 		},
 	})
+
+}
+
+func envString(value any, fallback string) string {
+	if result, ok := value.(string); ok && result != "" {
+		return result
+	}
+	return fallback
 }
