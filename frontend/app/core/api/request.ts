@@ -26,6 +26,7 @@ async function request<T>(
 ): Promise<ApiResponse<T>> {
   const response = await fetch(buildUrl(path, options.query), {
     method,
+    credentials: 'include',
     headers: {
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,

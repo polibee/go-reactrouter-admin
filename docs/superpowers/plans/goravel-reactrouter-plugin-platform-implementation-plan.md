@@ -159,6 +159,8 @@ The implementation should be executed as several independently reviewable sub-pr
 
 **Acceptance:** The frontend can log in, fetch the current user, render server-filtered navigation, manage users and roles, and receive consistent 401/403/422 responses from Goravel.
 
+**Progress note (2026-09-08):** The Core persistence foundation, framework-independent authorization rules, permission middleware seam, and frontend API-backed auth adapter are implemented and tested. The HTTP controllers, token/session completion, role/permission loading, server-filtered menu API, and database-backed Core API tests remain part of this stage.
+
 ## Stage 3: Plugin Manager Data Model and Package Validation
 
 **Outcome:** The Core can inspect and validate a plugin archive without executing it.

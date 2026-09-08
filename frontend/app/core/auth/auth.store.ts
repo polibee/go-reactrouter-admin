@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from 'react'
-import { mockAuthUser } from './auth.service'
 import type { AuthUser } from './auth.types'
 
 export interface AuthStoreState {
@@ -15,7 +14,7 @@ export interface AuthStore {
 }
 
 export function createAuthStore(
-  initialUser: AuthUser | null = mockAuthUser,
+  initialUser: AuthUser | null = null,
 ): AuthStore {
   let state: AuthStoreState = { user: initialUser, isLoading: false }
   const listeners = new Set<() => void>()

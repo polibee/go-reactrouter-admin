@@ -1,4 +1,5 @@
-// biome-ignore-all lint/suspicious/useAwait: async signatures reserved for a future HTTP data source
+import { api } from '~/core/api'
+import { ApiError } from '~/core/api/errors'
 import type { AuthUser } from './auth.types'
 
 export interface Credentials {
@@ -12,26 +13,25 @@ export interface AuthService {
   logout(): Promise<void>
 }
 
-export const mockAuthUser: AuthUser = {
-  id: 'usr_admin_1',
-  name: 'Admin User',
-  email: 'admin@antigravity.dev',
-  avatar:
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-  roles: ['super_admin', 'admin'],
-  permissions: ['*'], // Super admin has all permissions
-}
-
-export class MockAuthService implements AuthService {
+export class GoravelAuthService implements AuthService {
   async getCurrentUser(): Promise<AuthUser | null> {
-    return mockAuthUser
+    try {
+      const response = await api.get<AuthUser>('/api/v1/auth/me')
+      return response.data
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) return null
+      throw error
+    }
   }
 
   async login(credentials: Credentials): Promise<AuthUser> {
-    return { ...mockAuthUser, email: credentials.email || mockAuthUser.email }
+    const response = await api.post<AuthUser>('/api/v1/auth/login', credentials)
+    return response.data
   }
 
-  async logout(): Promise<void> {}
+  async logout(): Promise<void> {
+    await api.post('/api/v1/auth/logout')
+  }
 }
 
-export const mockAuthService = new MockAuthService()
+export const authService = new GoravelAuthService()

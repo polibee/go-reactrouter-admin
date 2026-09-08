@@ -1,5 +1,4 @@
 import { parseSubmission, report } from '@conform-to/react/future'
-import { setTimeout } from 'node:timers/promises'
 import { href } from 'react-router'
 import { redirectWithSuccess } from 'remix-toast'
 import {
@@ -10,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
+import { ApiError } from '~/core/api/errors'
+import { authService } from '~/core/auth'
 import { UserAuthForm } from './+components/user-auth-form'
 import { formSchema } from './+schema'
 import type { Route } from './+types/index'
@@ -24,14 +25,21 @@ export const action = async ({ request }: Route.ActionArgs) => {
     }
   }
 
-  if (result.data.email !== 'name@example.com') {
+  try {
+    await authService.login(result.data)
+  } catch (error) {
     return {
       result: report(submission, {
-        error: { formErrors: ['Invalid email or password'] },
+        error: {
+          formErrors: [
+            error instanceof ApiError
+              ? error.message
+              : 'Unable to reach the authentication service',
+          ],
+        },
       }),
     }
   }
-  await setTimeout(1000)
 
   throw await redirectWithSuccess(href('/'), {
     message: 'You have successfully logged in!',

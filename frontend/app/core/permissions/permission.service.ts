@@ -9,10 +9,10 @@ export function hasPermission(
   if (user.permissions.includes('*')) return true
   if (user.permissions.includes(permission)) return true
 
-  const parts = permission.split('.')
-  if (parts.length === 2) {
-    const [resource] = parts
-    if (user.permissions.includes(`${resource}.*`)) return true
+  let namespace = permission
+  while (namespace.includes('.')) {
+    namespace = namespace.slice(0, namespace.lastIndexOf('.'))
+    if (user.permissions.includes(`${namespace}.*`)) return true
   }
 
   return false
