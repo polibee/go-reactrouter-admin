@@ -149,7 +149,7 @@ The implementation should be executed as several independently reviewable sub-pr
 
 - [ ] Write failing tests for unauthenticated requests, missing permissions, role assignment, menu filtering, setting updates, and audit record creation.
 - [ ] Implement migrations with foreign keys and indexes for permission code, menu owner, plugin owner, and audit actor.
-- [ ] Implement authentication using the selected session/token strategy and make the frontend `AuthService` consume real endpoints.
+- [x] Implement JWT authentication with an HttpOnly cookie/Bearer fallback and make the frontend `AuthService` consume real endpoints.
 - [ ] Implement permission enforcement at the controller/middleware layer; frontend `Can` remains display-only.
 - [ ] Implement menu filtering so the server returns only enabled and authorized menu items.
 - [ ] Implement audit logs for login, permission change, setting change, and administrative mutations.

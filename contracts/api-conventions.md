@@ -7,6 +7,12 @@
 - Runtime plugin API: `/api/v1/plugins/{pluginId}`
 - Aggregated OpenAPI: `/openapi.json`
 - Plugin OpenAPI: `/openapi/plugins/{pluginId}.json`
+- Core authentication contract: `contracts/core-auth.openapi.json`
+
+Core browser authentication uses an HttpOnly `go_reactrouter_access_token`
+cookie. API clients may also send the same JWT as a standard `Authorization:
+Bearer <token>` header. The backend accepts both forms, while frontend browser
+code uses `credentials: include` and never reads the token directly.
 
 ## Success response
 

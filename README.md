@@ -23,6 +23,23 @@ pnpm install
 pnpm dev
 ```
 
+When the repository is under a Windows-mounted path such as `/mnt/d`, React
+Router's SSR/type-generation file I/O can be too slow and the first browser
+request may remain pending. For browser development, copy the working tree to
+the WSL-native filesystem and run it there:
+
+```text
+rsync -a --exclude node_modules --exclude .react-router /mnt/d/codex/go-reactrouter/ ~/projects/go-reactrouter/
+cd ~/projects/go-reactrouter/frontend
+pnpm install
+pnpm dev --host 0.0.0.0
+```
+
+Open `http://127.0.0.1:5173`. The Core API defaults to `http://127.0.0.1:3000`;
+set `VITE_API_BASE_URL` if the backend uses another origin. For cross-origin
+development, set `CORS_ALLOWED_ORIGINS` on the backend when using a custom
+frontend origin.
+
 Backend uses Goravel v1.18.0 and requires Go >= 1.25. Run it from `backend/`:
 
 ```text

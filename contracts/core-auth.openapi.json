@@ -1,0 +1,112 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GoReactRouter Core Authentication API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "/api/v1" }],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Authenticate a Core user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthUserResponse" },
+          "422": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "summary": "Read the current authenticated user",
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthUserResponse" },
+          "401": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Invalidate the current authentication token",
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "204": { "description": "Authentication token invalidated" },
+          "401": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": { "type": "apiKey", "in": "cookie", "name": "go_reactrouter_access_token" },
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 1 }
+        }
+      },
+      "AuthUser": {
+        "type": "object",
+        "required": ["id", "name", "email", "roles", "permissions"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "permissions": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "fields": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } }
+            }
+          },
+          "requestId": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "AuthUserResponse": {
+        "description": "Authenticated user",
+        "headers": {
+          "Set-Cookie": { "schema": { "type": "string" }, "description": "HttpOnly access token cookie" }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["data"],
+              "properties": { "data": { "$ref": "#/components/schemas/AuthUser" }, "message": { "type": "string" }, "requestId": { "type": "string" } }
+            }
+          }
+        }
+      },
+      "ApiErrorResponse": {
+        "description": "API error",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } }
+      }
+    }
+  }
+}
