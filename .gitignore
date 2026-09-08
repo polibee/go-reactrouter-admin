@@ -5,12 +5,12 @@ backend/storage/
 backend/.env
 backend/*.db
 
-# Frontend
+# Admin panel
 node_modules/
-frontend/node_modules/
-frontend/build/
-frontend/.react-router/
-frontend/.env
+admin/node_modules/
+admin/build/
+admin/.react-router/
+admin/.env
 
 # Runtime plugins
 runtime/plugins/
@@ -18,7 +18,7 @@ runtime/logs/
 runtime/tmp/
 
 # Generated artifacts
-frontend/generated/
+admin/generated/
 contracts/generated/
 *.sig
 

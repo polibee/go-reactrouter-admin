@@ -1,0 +1,61 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GoReactRouter Core Admin Resource API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "/api/v1/admin" }],
+  "paths": {
+    "/users": { "$ref": "#/components/pathItems/Users" },
+    "/roles": { "$ref": "#/components/pathItems/Roles" },
+    "/permissions": { "$ref": "#/components/pathItems/Permissions" },
+    "/menus": { "$ref": "#/components/pathItems/Menus" },
+    "/settings": { "$ref": "#/components/pathItems/Settings" },
+    "/audit-logs": { "$ref": "#/components/pathItems/AuditLogs" }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": { "type": "apiKey", "in": "cookie", "name": "go_reactrouter_access_token" },
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "parameters": {
+      "Page": { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+      "PageSize": { "name": "pageSize", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 } },
+      "Search": { "name": "search", "in": "query", "schema": { "type": "string" } }
+    },
+    "pathItems": {
+      "Users": { "get": { "operationId": "listUsers", "summary": "List Core users", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/UserListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } } },
+      "Roles": { "get": { "operationId": "listRoles", "summary": "List Core roles", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/RoleListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } } },
+      "Permissions": { "get": { "operationId": "listPermissions", "summary": "List Core permissions", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/PermissionListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } } },
+      "Menus": { "get": { "operationId": "listMenus", "summary": "List Core menus", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/MenuListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } } },
+      "Settings": { "get": { "operationId": "listSettings", "summary": "List Core settings", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/SettingListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } } },
+      "AuditLogs": { "get": { "operationId": "listAuditLogs", "summary": "List audit logs", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/AuditLogListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } } }
+    },
+    "schemas": {
+      "PageMeta": { "type": "object", "required": ["page", "pageSize", "total"], "properties": { "page": { "type": "integer" }, "pageSize": { "type": "integer" }, "total": { "type": "integer" } } },
+      "UserListItem": { "type": "object", "required": ["id", "name", "email", "status", "is_active"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "email": { "type": "string", "format": "email" }, "status": { "type": "string" }, "is_active": { "type": "boolean" }, "last_login_at": { "type": ["string", "null"], "format": "date-time" } } },
+      "RoleListItem": { "type": "object", "required": ["id", "name", "display_name", "is_system"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "display_name": { "type": "string" }, "description": { "type": ["string", "null"] }, "is_system": { "type": "boolean" } } },
+      "PermissionListItem": { "type": "object", "required": ["id", "code", "display_name"], "properties": { "id": { "type": "string" }, "code": { "type": "string" }, "display_name": { "type": "string" }, "description": { "type": ["string", "null"] }, "module_id": { "type": ["string", "null"] } } },
+      "MenuListItem": { "type": "object", "required": ["id", "key", "label", "sort", "is_visible"], "properties": { "id": { "type": "string" }, "key": { "type": "string" }, "label": { "type": "string" }, "path": { "type": ["string", "null"] }, "icon": { "type": ["string", "null"] }, "permission": { "type": ["string", "null"] }, "parent_id": { "type": ["string", "null"] }, "sort": { "type": "integer" }, "is_visible": { "type": "boolean" }, "meta": { "type": ["string", "null"] } } },
+      "SettingListItem": { "type": "object", "required": ["id", "key", "value", "type", "is_public"], "properties": { "id": { "type": "string" }, "key": { "type": "string" }, "value": { "type": "string" }, "type": { "type": "string" }, "is_public": { "type": "boolean" } } },
+      "AuditLogListItem": { "type": "object", "required": ["id", "action", "resource_type"], "properties": { "id": { "type": "string" }, "user_id": { "type": ["string", "null"] }, "action": { "type": "string" }, "resource_type": { "type": "string" }, "resource_id": { "type": ["string", "null"] }, "request_id": { "type": ["string", "null"] }, "ip_address": { "type": ["string", "null"] }, "user_agent": { "type": ["string", "null"] }, "before_data": { "type": ["string", "null"] }, "after_data": { "type": ["string", "null"] } } },
+      "ListEnvelope": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array" }, "meta": { "$ref": "#/components/schemas/PageMeta" }, "requestId": { "type": "string" } } },
+      "UserListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/UserListItem" } } } }] },
+      "RoleListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/RoleListItem" } } } }] },
+      "PermissionListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/PermissionListItem" } } } }] },
+      "MenuListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/MenuListItem" } } } }] },
+      "SettingListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/SettingListItem" } } } }] },
+      "AuditLogListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/AuditLogListItem" } } } }] },
+      "ApiError": { "type": "object", "required": ["error"], "properties": { "error": { "type": "object", "required": ["code", "message"], "properties": { "code": { "type": "string" }, "message": { "type": "string" }, "fields": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } } } }, "requestId": { "type": "string" } } }
+    },
+    "responses": {
+      "UserListResponse": { "description": "Paginated users", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserListEnvelope" } } } },
+      "RoleListResponse": { "description": "Paginated roles", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoleListEnvelope" } } } },
+      "PermissionListResponse": { "description": "Paginated permissions", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionListEnvelope" } } } },
+      "MenuListResponse": { "description": "Paginated menus", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MenuListEnvelope" } } } },
+      "SettingListResponse": { "description": "Paginated settings", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SettingListEnvelope" } } } },
+      "AuditLogListResponse": { "description": "Paginated audit logs", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuditLogListEnvelope" } } } },
+      "ApiErrorResponse": { "description": "API error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+    }
+  }
+}

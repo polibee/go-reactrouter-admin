@@ -159,7 +159,7 @@ go-reactrouter/
 │   │   └── openapi/
 │   └── tests/
 │
-├── frontend/
+├── admin/
 │   ├── app/
 │   │   ├── core/
 │   │   ├── resource-engine/
@@ -594,4 +594,3 @@ app/providers               → 应用 Provider 链
 11. 卸载默认保留业务数据，并有清理权限和菜单的记录。
 12. Swagger UI 能看到 Core API 和已安装插件 API。
 13. 一个真实业务插件可以同时提供后端 API、Resource、Custom Page、权限、菜单、迁移和 OpenAPI。
-

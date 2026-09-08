@@ -32,7 +32,7 @@ The target layout is:
 ```text
 go-reactrouter/
 ├── backend/
-├── frontend/
+├── admin/
 ├── plugins/
 ├── contracts/
 └── tools/
@@ -48,10 +48,10 @@ The implementation should be executed as several independently reviewable sub-pr
 
 - Create: `go-reactrouter/README.md`
 - Create: `go-reactrouter/docs/architecture/baseline.md`
-- Create: `go-reactrouter/frontend/` from the selected ReactRouterAdmin source snapshot
+- Create: `go-reactrouter/admin/` from the selected ReactRouterAdmin source snapshot
 - Create: `go-reactrouter/backend/` Goravel application skeleton
 - Modify: `go-reactrouter/.gitignore`
-- Test: `frontend/pnpm validate` and backend framework smoke test
+- Test: `admin/pnpm validate` and backend framework smoke test
 
 **Interfaces:**
 
@@ -80,10 +80,10 @@ The implementation should be executed as several independently reviewable sub-pr
 - Create: `contracts/plugin-runtime.openapi.json`
 - Create: `backend/internal/contracts/api.go`
 - Create: `backend/internal/contracts/plugin.go`
-- Create: `frontend/app/core/api/contracts.ts`
-- Create: `frontend/app/plugin-runtime/types.ts`
+- Create: `admin/app/core/api/contracts.ts`
+- Create: `admin/app/plugin-runtime/types.ts`
 - Test: `backend/internal/contracts/*_test.go`
-- Test: `frontend/app/plugin-runtime/types.test.ts`
+- Test: `admin/app/plugin-runtime/types.test.ts`
 
 **Interfaces:**
 
@@ -127,10 +127,10 @@ The implementation should be executed as several independently reviewable sub-pr
 - Create: `backend/app/Http/Controllers/SettingController.go`
 - Create: `backend/app/Http/Middleware/RequirePermission.go`
 - Create: `backend/routes/api.go`
-- Modify: `frontend/app/core/auth/auth.service.ts`
-- Modify: `frontend/app/core/api/request.ts`
-- Modify: `frontend/app/core/navigation/navigation-registry.ts`
-- Modify: `frontend/app/core/permissions/permission.service.ts`
+- Modify: `admin/app/core/auth/auth.service.ts`
+- Modify: `admin/app/core/api/request.ts`
+- Modify: `admin/app/core/navigation/navigation-registry.ts`
+- Modify: `admin/app/core/permissions/permission.service.ts`
 - Test: backend model, policy, controller, and migration tests
 - Test: frontend auth, permission, menu, and API error tests
 
@@ -150,7 +150,8 @@ The implementation should be executed as several independently reviewable sub-pr
 - [ ] Write failing tests for unauthenticated requests, missing permissions, role assignment, menu filtering, setting updates, and audit record creation.
 - [ ] Implement migrations with foreign keys and indexes for permission code, menu owner, plugin owner, and audit actor.
 - [x] Implement JWT authentication with an HttpOnly cookie/Bearer fallback and make the frontend `AuthService` consume real endpoints.
-- [ ] Implement permission enforcement at the controller/middleware layer; frontend `Can` remains display-only.
+- [x] Implement permission enforcement at the controller/middleware layer; admin `Can` remains display-only.
+- [x] Implement permission-protected paginated read endpoints for users, roles, permissions, menus, settings, and audit logs.
 - [ ] Implement menu filtering so the server returns only enabled and authorized menu items.
 - [ ] Implement audit logs for login, permission change, setting change, and administrative mutations.
 - [ ] Replace mock users and roles providers with generated-client adapters after the OpenAPI pipeline is available; until then use typed transport wrappers with the same contract.
@@ -256,11 +257,11 @@ The implementation should be executed as several independently reviewable sub-pr
 - Create: `backend/internal/openapi/serve.go`
 - Create: `tools/openapi-codegen/config.yaml`
 - Create: `tools/openapi-codegen/generate.go`
-- Create: `frontend/generated/core-api/`
+- Create: `admin/generated/core-api/`
 - Create: `plugins/sdk-go/example-plugin/openapi.json`
 - Create: `plugins/sdk-ts/client-runtime.ts`
-- Modify: `frontend/app/core/api/request.ts`
-- Modify: `frontend/app/resource-engine/resource/resource.types.ts`
+- Modify: `admin/app/core/api/request.ts`
+- Modify: `admin/app/resource-engine/resource/resource.types.ts`
 - Test: OpenAPI schema validation and generated-client compile tests
 
 **Interfaces:**
@@ -272,7 +273,7 @@ The implementation should be executed as several independently reviewable sub-pr
 
 - [ ] Write a contract test that checks every documented operation has an `operationId`, response envelope, error schema, and permission metadata.
 - [ ] Define pagination, sort, filter, validation error, and authorization error components once in the Core OpenAPI components section.
-- [ ] Generate Core TypeScript types and client functions into `frontend/generated/core-api`.
+- [ ] Generate Core TypeScript types and client functions into `admin/generated/core-api`.
 - [ ] Generate the example plugin client into its frontend package.
 - [ ] Make `app/core/api` inject authentication, request ID, abort signal, and normalized `ApiError` behavior around generated clients.
 - [ ] Add a resource-provider adapter test for list, find, create, update, delete, pagination, and 422 errors.
@@ -288,16 +289,16 @@ The implementation should be executed as several independently reviewable sub-pr
 
 **Files:**
 
-- Create: `frontend/app/plugin-runtime/plugin-registry.ts`
-- Create: `frontend/app/plugin-runtime/plugin-loader.ts`
-- Create: `frontend/app/plugin-runtime/plugin-context.tsx`
-- Create: `frontend/app/plugin-runtime/plugin-routes.tsx`
-- Create: `frontend/app/plugin-runtime/plugin-errors.tsx`
-- Modify: `frontend/app/core/extensions/extension.types.ts`
-- Modify: `frontend/app/core/navigation/navigation-registry.ts`
-- Modify: `frontend/app/core/registry/resource.registry.ts`
-- Modify: `frontend/app/core/admin/admin-provider.tsx`
-- Modify: `frontend/app/routes/_authenticated/admin/$.tsx`
+- Create: `admin/app/plugin-runtime/plugin-registry.ts`
+- Create: `admin/app/plugin-runtime/plugin-loader.ts`
+- Create: `admin/app/plugin-runtime/plugin-context.tsx`
+- Create: `admin/app/plugin-runtime/plugin-routes.tsx`
+- Create: `admin/app/plugin-runtime/plugin-errors.tsx`
+- Modify: `admin/app/core/extensions/extension.types.ts`
+- Modify: `admin/app/core/navigation/navigation-registry.ts`
+- Modify: `admin/app/core/registry/resource.registry.ts`
+- Modify: `admin/app/core/admin/admin-provider.tsx`
+- Modify: `admin/app/routes/_authenticated/admin/$.tsx`
 - Create: `plugins/sdk-ts/plugin.ts`
 - Create: `plugins/sdk-ts/resource-adapter.ts`
 - Create: `plugins/sdk-ts/navigation.ts`
@@ -338,12 +339,12 @@ The implementation should be executed as several independently reviewable sub-pr
 - Create: `backend/app/Jobs/InstallPlugin.go`
 - Create: `backend/app/Jobs/UpgradePlugin.go`
 - Create: `backend/app/Jobs/UninstallPlugin.go`
-- Create: `frontend/app/core-resources/plugins/resource.tsx`
-- Create: `frontend/app/core-resources/plugins/api.ts`
-- Create: `frontend/app/core-resources/plugins/components/plugin-install-dialog.tsx`
-- Create: `frontend/app/core-resources/plugins/components/plugin-state-badge.tsx`
-- Create: `frontend/app/core-resources/plugins/components/plugin-actions.tsx`
-- Modify: `frontend/app/core-resources/index.ts`
+- Create: `admin/app/core-resources/plugins/resource.tsx`
+- Create: `admin/app/core-resources/plugins/api.ts`
+- Create: `admin/app/core-resources/plugins/components/plugin-install-dialog.tsx`
+- Create: `admin/app/core-resources/plugins/components/plugin-state-badge.tsx`
+- Create: `admin/app/core-resources/plugins/components/plugin-actions.tsx`
+- Modify: `admin/app/core-resources/index.ts`
 - Test: lifecycle service tests, rollback tests, and browser workflow tests
 
 **Interfaces:**
@@ -375,9 +376,9 @@ The implementation should be executed as several independently reviewable sub-pr
 
 **Files:**
 
-- Modify: `frontend/app/core-resources/users/*`
-- Modify: `frontend/app/core-resources/roles/*`
-- Modify: `frontend/app/core-resources/permissions/*`
+- Modify: `admin/app/core-resources/users/*`
+- Modify: `admin/app/core-resources/roles/*`
+- Modify: `admin/app/core-resources/permissions/*`
 - Move or remove: current task demo routes and data
 - Move or remove: site/CMS-specific resources
 - Move or remove: sample analytics dashboard data

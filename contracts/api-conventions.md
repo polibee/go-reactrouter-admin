@@ -8,6 +8,7 @@
 - Aggregated OpenAPI: `/openapi.json`
 - Plugin OpenAPI: `/openapi/plugins/{pluginId}.json`
 - Core authentication contract: `contracts/core-auth.openapi.json`
+- Core admin resource contract: `contracts/core-admin.openapi.json`
 
 Core browser authentication uses an HttpOnly `go_reactrouter_access_token`
 cookie. API clients may also send the same JWT as a standard `Authorization:
@@ -57,6 +58,11 @@ filter[field]
 ```
 
 The frontend maps this contract to `ResourceDataProvider<T>` and never assembles endpoint URLs in resource pages.
+
+The first Core admin resource slice exposes authenticated, permission-protected
+read endpoints for users, roles, permissions, menus, settings, and audit logs.
+Each endpoint accepts `page`, `pageSize` (capped at 100), and `search`, and
+returns a `data` array with `meta.page`, `meta.pageSize`, and `meta.total`.
 
 ## Required status codes
 
