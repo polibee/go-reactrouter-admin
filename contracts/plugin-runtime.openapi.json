@@ -1,0 +1,119 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GoReactRouter Plugin Runtime API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/admin/plugins/{pluginId}": {
+      "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
+      "get": {
+        "operationId": "getPluginDescriptor",
+        "summary": "Inspect an installed plugin descriptor",
+        "responses": {
+          "200": { "$ref": "#/components/responses/PluginDescriptorResponse" },
+          "404": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/v1/plugins/{pluginId}/health": {
+      "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
+      "get": {
+        "operationId": "getPluginHealth",
+        "summary": "Check the supervised plugin process",
+        "responses": {
+          "200": { "$ref": "#/components/responses/HealthResponse" },
+          "503": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/v1/plugins/{pluginId}/metadata": {
+      "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
+      "get": {
+        "operationId": "getPluginRuntimeMetadata",
+        "summary": "Read internal gateway metadata",
+        "responses": {
+          "200": { "$ref": "#/components/responses/PluginDescriptorResponse" },
+          "404": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/v1/plugins/{pluginId}/shutdown": {
+      "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
+      "post": {
+        "operationId": "shutdownPlugin",
+        "summary": "Request graceful plugin shutdown",
+        "responses": {
+          "202": { "$ref": "#/components/responses/HealthResponse" },
+          "404": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "PluginId": {
+        "name": "pluginId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$" }
+      }
+    },
+    "schemas": {
+      "PluginDescriptor": {
+        "type": "object",
+        "required": ["id", "version", "apiVersion", "coreRequires"],
+        "properties": {
+          "id": { "type": "string" },
+          "version": { "type": "string" },
+          "apiVersion": { "type": "string" },
+          "coreRequires": { "type": "string" }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {},
+          "message": { "type": "string" },
+          "requestId": { "type": "string" }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "fields": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } }
+            }
+          },
+          "requestId": { "type": "string" }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": ["status"],
+        "properties": { "status": { "type": "string", "enum": ["ok"] } }
+      }
+    },
+    "responses": {
+      "PluginDescriptorResponse": {
+        "description": "Plugin descriptor",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } }
+      },
+      "HealthResponse": {
+        "description": "Healthy plugin",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } }
+      },
+      "ApiErrorResponse": {
+        "description": "API error",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } }
+      }
+    }
+  }
+}

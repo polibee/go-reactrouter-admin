@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://go-reactrouter.local/contracts/plugin-state.schema.json",
+  "title": "Plugin State",
+  "type": "string",
+  "enum": [
+    "discovered",
+    "verifying",
+    "installed",
+    "enabling",
+    "enabled",
+    "disabling",
+    "disabled",
+    "uninstalling",
+    "failed",
+    "uninstalled"
+  ]
+}

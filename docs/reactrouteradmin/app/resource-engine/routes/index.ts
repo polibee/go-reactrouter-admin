@@ -1,0 +1,6 @@
+export * from './create-resource-routes'
+export * from './resource-create-page'
+export * from './resource-detail-page'
+export * from './resource-edit-page'
+export * from './resource-list-page'
+export * from './resource-router'
