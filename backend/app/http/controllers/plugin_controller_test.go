@@ -21,6 +21,7 @@ func TestPluginListItemExposesValidatedStateWithoutPackageSecrets(t *testing.T) 
 		Versions: []models.PluginVersion{{
 			Version:      version,
 			Dependencies: `[{"id":"acme.identity","version":">=1.0.0"}]`,
+			ManifestJSON: `{"apiVersion":"1","coreRequires":">=1.0.0","frontend":{"entrypoint":"/plugin-assets/acme.billing/1.2.3/entry.js"}}`,
 		}},
 	})
 
@@ -29,6 +30,9 @@ func TestPluginListItemExposesValidatedStateWithoutPackageSecrets(t *testing.T) 
 	}
 	if len(item.Dependencies) != 1 || item.Dependencies[0].ID != "acme.identity" {
 		t.Fatalf("dependencies = %#v", item.Dependencies)
+	}
+	if item.APIVersion != "1" || item.CoreRequires != ">=1.0.0" || item.FrontendEntry != "/plugin-assets/acme.billing/1.2.3/entry.js" || !item.Trusted {
+		t.Fatalf("runtime descriptor = %#v", item)
 	}
 	payload, err := json.Marshal(item)
 	if err != nil {

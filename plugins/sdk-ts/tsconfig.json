@@ -1,0 +1,19 @@
+{
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "baseUrl": "../..",
+    "paths": {
+      "react": ["admin/node_modules/react"]
+    },
+    "lib": ["DOM", "ES2022"],
+    "typeRoots": ["../../admin/node_modules/@types"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  }
+}

@@ -1,5 +1,5 @@
-import { ResourceRouter } from '~/resource-engine/routes'
+import { PluginRouteHost } from '~/plugin-runtime/plugin-routes'
 
 export default function AdminResourceCatchAll() {
-  return <ResourceRouter />
+  return <PluginRouteHost />
 }

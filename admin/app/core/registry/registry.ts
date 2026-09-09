@@ -17,6 +17,10 @@ export class Registry<T extends { name: string }> {
     return this.items.has(name)
   }
 
+  unregister(name: string): void {
+    this.items.delete(name)
+  }
+
   clear(): void {
     this.items.clear()
   }

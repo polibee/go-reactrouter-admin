@@ -7,6 +7,7 @@ import type { AnyAdminResource } from '~/core/registry/resource.registry'
 export type PluginRuntimeMode = 'builtin' | 'external' | 'sandboxed'
 
 export type PluginRuntimeState = PluginState
+export type PluginFrontendLoadState = 'idle' | 'loading' | 'loaded' | 'failed'
 
 export interface RuntimePluginDescriptor {
   id: string
@@ -14,11 +15,14 @@ export interface RuntimePluginDescriptor {
   displayName: string
   version: string
   apiVersion: string
+  coreRequires?: string
   runtime: PluginRuntimeMode
   state: PluginRuntimeState
   enabled: boolean
   trusted: boolean
   frontendEntrypoint?: string
+  loadState?: PluginFrontendLoadState
+  loadError?: string
 }
 
 export interface PluginPageDefinition {
@@ -28,11 +32,16 @@ export interface PluginPageDefinition {
   permission?: string
 }
 
+export interface PluginNavigationItem extends NavItem {
+  group?: string
+  sort?: number
+}
+
 export interface PluginFrontendApp {
   readonly config: AdminConfig
   registerResource(resource: AnyAdminResource): void
   registerPage(page: PluginPageDefinition): void
-  registerNavigation(item: NavItem): void
+  registerNavigation(item: PluginNavigationItem): void
   isFeatureEnabled(feature: keyof AdminConfig['features']): boolean
 }
 

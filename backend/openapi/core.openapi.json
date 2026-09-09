@@ -664,6 +664,7 @@
           "display_name",
           "state",
           "dependencies",
+          "trusted",
           "health_status"
         ],
         "properties": {
@@ -684,6 +685,18 @@
           },
           "current_version": {
             "type": "string"
+          },
+          "api_version": {
+            "type": "string"
+          },
+          "core_requires": {
+            "type": "string"
+          },
+          "frontend_entrypoint": {
+            "type": "string"
+          },
+          "trusted": {
+            "type": "boolean"
           },
           "dependencies": {
             "type": "array",

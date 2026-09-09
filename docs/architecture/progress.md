@@ -4,7 +4,7 @@
 
 ## 当前结论
 
-项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证、Stage 3 插件包校验与状态持久化、Stage 4 插件独立进程与网关基础能力，正在收尾 Stage 5 的 OpenAPI 客户端和合同聚合。主业务仍采用编译进主应用的模块化方式。
+项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证、Stage 3 插件包校验与状态持久化、Stage 4 插件独立进程与网关基础能力、Stage 5 OpenAPI 客户端和合同聚合，并完成 Stage 6 前端插件运行时基础能力。主业务仍采用编译进主应用的模块化方式。
 
 ## 已完成
 
@@ -47,19 +47,25 @@
 - Stage 5 已加入示例插件 OpenAPI 合同、生成的 `plugins/sdk-ts/example-plugin/client.ts` 和统一插件请求运行时。
 - Stage 5 已加入启用插件 OpenAPI 注册表、组件命名空间隔离、路径冲突检查及 `/openapi/plugins/{pluginId}.json`；`/openapi.json` 会聚合 Core 与启用插件合同。
 - Core OpenAPI 已集中定义分页、排序、字段过滤、校验错误和鉴权错误组件；排序与字段过滤目前只作为可选合同能力，未对 Core 资源宣称已实现。
+- Stage 6 已加入 Core 插件列表的前端入口、API/Core 版本和可信状态元数据，前端运行时会先读取该合同再加载插件。
+- Stage 6 已加入前端插件注册器：插件资源使用插件命名空间，页面注册到认证管理端通配路由，菜单注册到现有导航注册表，并支持按插件 owner 清理。
+- Stage 6 已加入同源 ESM 加载、可信/版本兼容性校验、失败插件隔离和稳定的插件不可用页面；Core 手写路由仍优先于插件宿主路由。
+- Stage 6 已加入 TypeScript 插件 SDK 的资源适配器、导航辅助函数和最小示例入口，示例入口使用生成客户端访问插件 API。
 
 ## 未完成
 
 - Stage 2：Core 资源的生成客户端接入已完成；菜单当前仍是“可见且有权限的导航数据”接口，后续如需管理不可见菜单，应单独增加管理目录接口，不能复用导航过滤接口。
 - Stage 3：插件验证记录的后台管理页面、上传安装工作流和完整真实数据库插件生命周期测试仍待完成。
 - Stage 4：运行时进程/网关基础能力已完成；持久化数据库状态与完整启用、停用、升级、卸载事务仍留在 Stage 7，当前运行时 registry 是进程监督的易失状态。
-- Stage 5：插件 OpenAPI 客户端和启用插件合同聚合已完成；CI 工作流、完整 TypeScript 编译验证和将插件文档注册接入持久化生命周期仍待完成。
-- Stage 6–9：前端插件页面宿主、安装/启停/升级/卸载 UI、安全加固和发布流程。
+- Stage 5：插件 OpenAPI 客户端和启用插件合同聚合已完成；CI 工作流和将插件文档注册接入持久化生命周期仍待完成。
+- Stage 6：浏览器端插件路由 E2E、实际插件静态资产发布/缓存策略和安装/启用后的页面刷新仍待完成；这些属于安装器与发布链路，不阻塞当前前端运行时宿主。
+- Stage 7–9：插件安装、启停、升级、卸载 UI，安全加固和发布流程。
 
 ## 验证状态
 
 - `backend`: `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过。
-- `admin`: 本轮 `pnpm test:unit` 通过，13 个测试通过。
+- `admin`: 本轮 `pnpm test:unit` 通过，18 个测试通过。
+- `admin`: Stage 6 TypeScript 编译、OpenAPI stale 检查和 SDK TypeScript 编译通过。
 - `admin`: Biome lint 无新增错误，保留原资源引擎的 4 条 warning。
 - `admin`: 已在 WSL 原生临时目录完成 `pnpm typecheck` 和 `pnpm build`；`/mnt/d` Windows 挂载目录仍不适合执行这两项耗时文件 I/O 操作。
 - 开发服务：`pnpm dev --host 0.0.0.0` 最终监听 `5173`，但 `/` 请求在 `/mnt/d` 下超过 20 秒无响应；开发前端应复制到 WSL 原生目录后运行。

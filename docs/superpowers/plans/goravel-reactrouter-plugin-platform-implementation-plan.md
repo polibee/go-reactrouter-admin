@@ -291,21 +291,36 @@ The implementation should be executed as several independently reviewable sub-pr
 
 **Files:**
 
-- Create: `admin/app/plugin-runtime/plugin-registry.ts`
-- Create: `admin/app/plugin-runtime/plugin-loader.ts`
-- Create: `admin/app/plugin-runtime/plugin-context.tsx`
-- Create: `admin/app/plugin-runtime/plugin-routes.tsx`
-- Create: `admin/app/plugin-runtime/plugin-errors.tsx`
-- Modify: `admin/app/core/extensions/extension.types.ts`
+- Modify: `admin/app/core/extensions/plugin.types.ts`
+- Modify: `admin/app/core/extensions/plugin-registry.ts`
+- Modify: `admin/app/core/extensions/plugin-loader.ts`
 - Modify: `admin/app/core/navigation/navigation-registry.ts`
+- Modify: `admin/app/core/registry/registry.ts`
 - Modify: `admin/app/core/registry/resource.registry.ts`
 - Modify: `admin/app/core/admin/admin-provider.tsx`
+- Modify: `admin/app/core/admin/admin.types.ts`
 - Modify: `admin/app/routes/_authenticated/admin/$.tsx`
+- Create: `admin/app/plugin-runtime/plugin-app.ts`
+- Create: `admin/app/plugin-runtime/plugin-contract.ts`
+- Create: `admin/app/plugin-runtime/plugin-registration.ts`
+- Create: `admin/app/plugin-runtime/plugin-routes.tsx`
+- Create: `admin/app/plugin-runtime/runtime.ts`
+- Create: `admin/app/plugin-runtime/plugin-app.test.ts`
+- Create: `admin/app/plugin-runtime/plugin-contract.test.ts`
+- Modify: `backend/app/http/controllers/plugin_controller.go`
+- Modify: `backend/app/http/controllers/plugin_controller_test.go`
+- Modify: `contracts/core-admin.openapi.json`
+- Modify: `backend/openapi/core.openapi.json`
+- Modify: `admin/generated/core-api/index.ts`
 - Create: `plugins/sdk-ts/plugin.ts`
 - Create: `plugins/sdk-ts/resource-adapter.ts`
 - Create: `plugins/sdk-ts/navigation.ts`
 - Create: `plugins/sdk-ts/example-plugin/entry.ts`
-- Test: plugin registry, loader, permission filtering, resource registration, and lazy page tests
+- Create: `plugins/sdk-ts/package.json`
+- Create: `plugins/sdk-ts/tsconfig.json`
+- Modify: `tools/openapi-codegen/generate.mjs`
+- Modify: `admin/package.json`
+- Test: plugin registry, compatibility, contract mapping, resource registration, and page registration tests
 
 **Interfaces:**
 
@@ -316,15 +331,16 @@ The implementation should be executed as several independently reviewable sub-pr
 - `PluginFrontendApp.registerResource(resource: AnyAdminResource): void`
 - `PluginFrontendApp.registerPage(page: PluginPageDefinition): void`
 
-- [ ] Write a registry test for idempotent registration, duplicate IDs, disabled plugins, and failed module loading.
-- [ ] Load the enabled plugin list from Core before registering frontend modules.
-- [ ] Check package version and API version before executing a trusted entry module.
-- [ ] Register plugin resources into the existing `resourceRegistry` and plugin pages into the route host used by the authenticated admin splat route.
-- [ ] Keep handwritten Core routes higher priority than plugin host routes.
-- [ ] Combine backend menu visibility with registered frontend routes before rendering the sidebar.
-- [ ] Render a stable plugin-unavailable page when the backend is enabled but the frontend bundle fails to load.
+- [x] Write registry tests for idempotent registration, duplicate IDs, disabled plugins, failed module loading, and compatibility checks.
+- [x] Load the enabled plugin list from Core before registering frontend modules.
+- [x] Check trust, Core requirement, and API version before executing a frontend entry module.
+- [x] Register plugin resources into the existing `resourceRegistry` and plugin pages into the route host used by the authenticated admin splat route.
+- [x] Keep handwritten Core routes higher priority than plugin host routes.
+- [x] Combine backend menu visibility with registered frontend routes before rendering the sidebar.
+- [x] Render a stable plugin-unavailable page when the backend is enabled but the frontend bundle fails to load.
 - [ ] Add a full-page reload after a successful install or enable operation.
-- [ ] Run `pnpm validate`, generated-client typecheck, and browser tests for plugin route access.
+- [x] Run unit tests, generated-client checks, backend tests, and TypeScript checks for the plugin host.
+- [ ] Run browser tests against a WSL-native build and complete the repository-wide formatting baseline.
 - [ ] Commit as `feat: add runtime frontend plugin host`.
 
 **Acceptance:** The example plugin contributes a Resource and a Custom Page without changing `app/routes.ts`, and an unauthorized user cannot see or open either page.

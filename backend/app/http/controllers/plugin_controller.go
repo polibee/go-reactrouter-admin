@@ -27,6 +27,10 @@ type PluginListItem struct {
 	DisplayName    string                       `json:"display_name"`
 	State          string                       `json:"state"`
 	CurrentVersion string                       `json:"current_version,omitempty"`
+	APIVersion     string                       `json:"api_version,omitempty"`
+	CoreRequires   string                       `json:"core_requires,omitempty"`
+	FrontendEntry  string                       `json:"frontend_entrypoint,omitempty"`
+	Trusted        bool                         `json:"trusted"`
 	Dependencies   []contracts.PluginDependency `json:"dependencies"`
 	LastError      *string                      `json:"last_error,omitempty"`
 	HealthStatus   string                       `json:"health_status"`
@@ -101,6 +105,19 @@ func pluginListItem(plugin models.Plugin) PluginListItem {
 			continue
 		}
 		_ = json.Unmarshal([]byte(version.Dependencies), &item.Dependencies)
+		var manifest struct {
+			APIVersion   string `json:"apiVersion"`
+			CoreRequires string `json:"coreRequires"`
+			Frontend     struct {
+				Entrypoint string `json:"entrypoint"`
+			} `json:"frontend"`
+		}
+		if json.Unmarshal([]byte(version.ManifestJSON), &manifest) == nil {
+			item.APIVersion = manifest.APIVersion
+			item.CoreRequires = manifest.CoreRequires
+			item.FrontendEntry = manifest.Frontend.Entrypoint
+			item.Trusted = item.APIVersion != "" && item.FrontendEntry != ""
+		}
 		break
 	}
 	return item

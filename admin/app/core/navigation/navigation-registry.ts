@@ -1,10 +1,11 @@
 import type { NavGroup } from './navigation.types'
 
 export class NavigationRegistry {
-  private staticGroups: NavGroup[] = []
+  private groupsByOwner = new Map<string, NavGroup[]>()
 
-  registerGroup(group: NavGroup): void {
-    const existing = this.staticGroups.find((g) => g.title === group.title)
+  registerGroup(group: NavGroup, owner = 'core'): void {
+    const groups = this.groupsByOwner.get(owner) ?? []
+    const existing = groups.find((g) => g.title === group.title)
     if (existing) {
       for (const item of group.items) {
         const duplicated = existing.items.some(
@@ -16,16 +17,21 @@ export class NavigationRegistry {
         if (!duplicated) existing.items.push(item)
       }
     } else {
-      this.staticGroups.push({ ...group, items: [...group.items] })
+      groups.push({ ...group, items: [...group.items] })
     }
+    this.groupsByOwner.set(owner, groups)
   }
 
   getGroups(): NavGroup[] {
-    return this.staticGroups
+    return Array.from(this.groupsByOwner.values()).flat()
+  }
+
+  unregisterOwner(owner: string): void {
+    this.groupsByOwner.delete(owner)
   }
 
   clear(): void {
-    this.staticGroups = []
+    this.groupsByOwner.clear()
   }
 }
 

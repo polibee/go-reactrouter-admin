@@ -7,4 +7,9 @@ export interface AdminContextValue {
   locale: string
   features: AdminConfig['features']
   isFeatureEnabled: (feature: keyof AdminConfig['features']) => boolean
+  pluginRuntime: {
+    isLoading: boolean
+    error?: string
+    reload: () => Promise<void>
+  }
 }

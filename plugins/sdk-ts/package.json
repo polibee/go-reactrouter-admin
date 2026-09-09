@@ -1,0 +1,9 @@
+{
+  "name": "@go-reactrouter/plugin-sdk",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "peerDependencies": {
+    "react": ">=19.0.0"
+  }
+}

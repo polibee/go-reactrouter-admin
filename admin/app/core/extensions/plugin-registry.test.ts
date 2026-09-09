@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { validatePluginCompatibility } from './plugin-loader.ts'
 import { PluginRegistry } from './plugin-registry.ts'
 import type { RuntimePluginDescriptor } from './plugin.types.ts'
 
@@ -54,4 +55,37 @@ test('clear removes all runtime descriptors', () => {
   registry.clear()
 
   assert.equal(registry.getAll().length, 0)
+})
+
+test('disable removes a plugin from enabled descriptors and records its state', () => {
+  const registry = new PluginRegistry()
+  registry.register(descriptor)
+
+  registry.disable('acme.inventory')
+
+  assert.equal(registry.get('acme.inventory')?.enabled, false)
+  assert.equal(registry.get('acme.inventory')?.state, 'disabled')
+  assert.deepEqual(registry.getEnabled(), [])
+})
+
+test('failed frontend loading is visible without making the plugin routable', () => {
+  const registry = new PluginRegistry()
+  registry.register(descriptor)
+
+  registry.markFailed('acme.inventory', 'bundle unavailable')
+
+  assert.equal(registry.get('acme.inventory')?.loadError, 'bundle unavailable')
+  assert.deepEqual(registry.getEnabled(), [])
+})
+
+test('trusted frontend loading validates the plugin API version before import', () => {
+  assert.doesNotThrow(() => validatePluginCompatibility(descriptor, '1'))
+  assert.throws(
+    () => validatePluginCompatibility({ ...descriptor, apiVersion: '2' }, '1'),
+    /unsupported plugin api version/,
+  )
+  assert.throws(
+    () => validatePluginCompatibility({ ...descriptor, trusted: false }, '1'),
+    /untrusted plugin frontend/,
+  )
 })

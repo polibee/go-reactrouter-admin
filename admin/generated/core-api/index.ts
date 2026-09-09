@@ -100,6 +100,10 @@ export interface PluginListItem {
   display_name: string
   state: string
   current_version?: string
+  api_version?: string
+  core_requires?: string
+  frontend_entrypoint?: string
+  trusted: boolean
   dependencies: Array<PluginDependency>
   last_error?: string | null
   health_status: string
