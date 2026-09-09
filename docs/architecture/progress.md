@@ -4,7 +4,7 @@
 
 ## 当前结论
 
-项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证，并完成 Core 资源到生成客户端的第一轮切换；当前进入 Stage 3 插件包校验和状态持久化。主业务仍采用编译进主应用的模块化方式；插件独立进程和网关仍未开始。
+项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证、Stage 3 插件包校验与状态持久化、Stage 4 插件独立进程与网关基础能力。主业务仍采用编译进主应用的模块化方式；当前下一步进入 Stage 5 插件 OpenAPI 客户端和合同聚合。
 
 ## 已完成
 
@@ -39,12 +39,16 @@
 - Stage 3 已加入安全插件 ZIP 校验器：归档大小、文件数量、解压大小、路径穿越、符号链接、manifest、平台、Core/依赖版本和 Ed25519 签名均在执行前校验。
 - Stage 3 已加入 `plugins`、`plugin_versions`、`plugin_processes` 表和 Goravel 模型；只有校验成功后才记录插件版本。
 - Stage 3 已加入受权限保护的插件列表和校验 API，并同步到 OpenAPI/生成客户端；独立 `tools/plugin-validator` CLI 输出稳定机器可读错误码。
+- Stage 4 已加入固定入口、最小环境和 loopback 地址约束的插件进程 runner；进程输出有大小上限并带插件/进程/流标识，token 不写入日志。
+- Stage 4 已加入插件 SDK runtime，提供受 token 保护的 `/health`、`/metadata`、`/shutdown` 和插件 API 路由；示例插件已能独立编译运行。
+- Stage 4 已加入健康检查、重复失败转 `failed`、优雅停止后强制终止，以及只允许 `enabled` 状态的 Core 网关；Goravel 已注册 `/api/v1/plugins/{pluginID}/*path` 认证代理路由。
+- Stage 4 集成测试已覆盖“启动示例插件→等待健康→经网关访问→停用后拒绝→停止进程”的完整链路；进程健康失败计数也已加入跨数据库兼容迁移。
 
 ## 未完成
 
 - Stage 2：Core 资源的生成客户端接入已完成；菜单当前仍是“可见且有权限的导航数据”接口，后续如需管理不可见菜单，应单独增加管理目录接口，不能复用导航过滤接口。
 - Stage 3：插件验证记录的后台管理页面、上传安装工作流和完整真实数据库插件生命周期测试仍待完成。
-- Stage 4：插件独立进程、健康检查、网关和生命周期控制。
+- Stage 4：运行时进程/网关基础能力已完成；持久化数据库状态与完整启用、停用、升级、卸载事务仍留在 Stage 7，当前运行时 registry 是进程监督的易失状态。
 - Stage 5：插件 OpenAPI 客户端生成、启用插件合同聚合、CI 工作流和完整 TypeScript 编译验证仍待完成。
 - Stage 6–9：前端插件页面宿主、安装/启停/升级/卸载 UI、安全加固和发布流程。
 
@@ -60,5 +64,7 @@
 - `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过；PostgreSQL 和 MySQL `DB_INTEGRATION=1` 集成测试均通过。
 - `backend/internal/pluginhost` 校验器测试覆盖签名包、manifest 缺失、路径穿越、平台不兼容、签名错误、Core 不兼容、依赖缺失和文件大小限制。
 - `tools/plugin-validator` 独立 CLI 测试通过；错误输出包含稳定 `code` 字段。
+- `plugins/sdk-go`: SDK runtime 测试通过；示例插件可独立构建。
+- `backend/internal/integration`: 示例插件独立进程与 Core 网关集成测试通过。
 - 默认 Go 测试包含集成测试包，但因未设置 `DB_INTEGRATION=1` 会安全跳过真实数据库操作。
 - ReactRouterAdmin 在 `/mnt/d` Windows 挂载目录启动开发服务时，首次 SSR 请求出现长时间阻塞；进程处于文件 I/O 等待状态。这是 WSL 跨文件系统开发目录的环境限制，需迁移到 WSL 原生目录或使用构建产物部署后再做浏览器 E2E。

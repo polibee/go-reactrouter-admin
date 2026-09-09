@@ -233,16 +233,18 @@ The implementation should be executed as several independently reviewable sub-pr
 - `Proxy(ctx context.Context, pluginID string, request GatewayRequest) GatewayResponse`
 - `PluginRuntimeServer` with `/health`, `/metadata`, and `/shutdown`
 
-- [ ] Write an integration test that starts the example plugin, waits for health, calls a plugin endpoint through Gateway, and stops the process.
-- [ ] Allocate a local-only address and pass plugin ID, API prefix, Core URL, and process token through environment variables.
-- [ ] Reject plugin requests when the database state is not `enabled`.
-- [ ] Add request identity and authenticated user claims to the internal gateway protocol.
-- [ ] Capture stdout and stderr with plugin ID and process ID in structured logs.
-- [ ] Implement graceful shutdown followed by forced termination after the configured timeout.
-- [ ] Mark the plugin `failed` after repeated health failures and stop routing traffic.
-- [ ] Ensure a crashed plugin process does not terminate the Goravel process.
-- [ ] Run process lifecycle tests on the supported development platform.
-- [ ] Commit as `feat: run plugins behind supervised gateway`.
+- [x] Write an integration test that starts the example plugin, waits for health, calls a plugin endpoint through Gateway, and stops the process.
+- [x] Allocate a local-only address and pass plugin ID, API prefix, Core URL, and process token through environment variables.
+- [x] Reject plugin requests when the runtime state is not `enabled`; durable database lifecycle transitions remain in Stage 7.
+- [x] Add request identity and authenticated user claims to the internal gateway protocol.
+- [x] Capture stdout and stderr with plugin ID and process ID in structured logs.
+- [x] Implement graceful shutdown followed by forced termination after the configured timeout.
+- [x] Mark the plugin `failed` after repeated health failures and stop routing traffic.
+- [x] Ensure a crashed plugin process does not terminate the Goravel process.
+- [x] Run process lifecycle tests on the supported development platform.
+- [x] Commit as `feat: run plugins behind supervised gateway`.
+
+**Progress note (2026-09-09):** The runner, SDK runtime, health checker, gateway, Goravel authenticated proxy route, health-failure migration, and example-plugin integration test are implemented. The volatile registry blocks disabled/failed plugins immediately; Stage 7 will reconcile these transitions with durable install/enable/disable/upgrade/uninstall operations.
 
 **Acceptance:** The example plugin remains isolated from the Core process, yet its API is reachable through the Core API prefix and is blocked immediately after disable.
 

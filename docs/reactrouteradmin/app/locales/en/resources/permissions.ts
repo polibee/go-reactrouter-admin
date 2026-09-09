@@ -17,9 +17,9 @@ export const permissionsResources = {
     site: 'Site & Portal',
     siteDescription:
       'Standalone pages, header and footer navigation, widget cards, announcements and ad slots',
-    articles: 'Content Management',
-    articlesDescription:
-      'Article publishing, categories and portal content control',
+    posts: 'Content Management',
+    postsDescription:
+      'Post publishing, categories and portal content control',
     settings: 'Settings',
     settingsDescription:
       'Global panels, visual themes, security policies and external services',
@@ -65,16 +65,16 @@ export const permissionsResources = {
     siteLinks: 'Manage friend links',
     siteLinksDescription:
       'Approve, reject, add, edit or delete friend link requests',
-    articlesView: 'View content',
-    articlesViewDescription: 'View article list, drafts and reading statistics',
-    articlesCreate: 'Write articles',
-    articlesCreateDescription: 'Write and upload new articles or news drafts',
-    articlesUpdate: 'Edit & review',
-    articlesUpdateDescription:
-      'Edit existing articles, adjust categories and tags, and publish',
-    articlesDelete: 'Delete content',
-    articlesDeleteDescription:
-      'Unpublish and delete published articles or drafts',
+    postsView: 'View content',
+    postsViewDescription: 'View post list, drafts and reading statistics',
+    postsCreate: 'Write posts',
+    postsCreateDescription: 'Write and upload new posts or news drafts',
+    postsUpdate: 'Edit & review',
+    postsUpdateDescription:
+      'Edit existing posts, adjust categories and tags, and publish',
+    postsDelete: 'Delete content',
+    postsDeleteDescription:
+      'Unpublish and delete published posts or drafts',
     settingsView: 'View settings',
     settingsViewDescription:
       'View site info, design presets and basic configuration',

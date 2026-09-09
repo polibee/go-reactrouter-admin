@@ -115,4 +115,6 @@ func API() {
 	admin.Middleware(middleware.RequirePermission("settings.delete", resolver)).Delete("/settings/{id}", func(ctx http.Context) http.Response {
 		return resourceController.DeleteSetting(ctx)
 	})
+
+	RegisterPluginGatewayRoutes()
 }

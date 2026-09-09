@@ -11,5 +11,6 @@ func Migrations() []schema.Migration {
 		&migrations.M20210101000001CreateJobsTable{},
 		&migrations.M20260908000001CreateCoreTables{},
 		&migrations.M20260909000001CreatePluginTables{},
+		&migrations.M20260909000002AddPluginProcessHealthFailures{},
 	}
 }

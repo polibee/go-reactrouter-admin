@@ -14,7 +14,9 @@ type PluginProcess struct {
 	Address         *string        `gorm:"size:255" json:"address,omitempty"`
 	State           string         `gorm:"size:32;not null" json:"state"`
 	HealthStatus    string         `gorm:"size:32;not null;default:'unknown'" json:"health_status"`
+	HealthFailures  int            `gorm:"not null;default:0" json:"health_failures"`
 	LastError       *string        `gorm:"type:text" json:"last_error,omitempty"`
+	LastHealthAt    *time.Time     `json:"last_health_at,omitempty"`
 	StartedAt       *time.Time     `json:"started_at,omitempty"`
 	StoppedAt       *time.Time     `json:"stopped_at,omitempty"`
 	PluginVersion   *PluginVersion `json:"plugin_version,omitempty"`

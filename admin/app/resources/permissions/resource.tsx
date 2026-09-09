@@ -24,7 +24,7 @@ export const PermissionsResource = defineResource<PermissionRow>({
         users: 'info',
         roles: 'success',
         site: 'warning',
-        articles: 'error',
+        posts: 'error',
         settings: 'default',
       })
       .sortable()
