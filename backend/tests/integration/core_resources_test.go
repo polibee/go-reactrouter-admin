@@ -46,7 +46,7 @@ func (s *CoreResourcesTestSuite) seedAdministrator() {
 		"permissions.view", "permissions.create", "permissions.update", "permissions.delete",
 		"menus.view", "menus.create", "menus.update", "menus.delete",
 		"settings.view", "settings.create", "settings.update", "settings.delete",
-		"plugins.view", "plugins.validate",
+		"plugins.view", "plugins.validate", "plugins.manage",
 		"audit.view",
 	}
 	permissions := make([]models.Permission, 0, len(permissionCodes))
@@ -100,6 +100,17 @@ func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	pluginList, err := request.Get("/api/v1/admin/plugins")
 	s.Require().NoError(err)
 	pluginList.AssertOk()
+	pluginVersions, err := request.Get("/api/v1/admin/plugins/integration.plugin/versions")
+	s.Require().NoError(err)
+	pluginVersions.AssertOk()
+	pluginLogs, err := request.Get("/api/v1/admin/plugins/integration.plugin/logs")
+	s.Require().NoError(err)
+	pluginLogs.AssertOk()
+	missingConfirmation, err := request.Post("/api/v1/admin/plugins/integration.plugin/uninstall", bytes.NewReader(jsonBytes(map[string]any{
+		"confirm": false,
+	})))
+	s.Require().NoError(err)
+	missingConfirmation.AssertUnprocessableEntity()
 
 	permissionResponse, err := request.Post("/api/v1/admin/permissions", bytes.NewReader(jsonBytes(map[string]any{
 		"code":         "integration.read",

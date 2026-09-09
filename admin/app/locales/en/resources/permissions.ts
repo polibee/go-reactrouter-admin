@@ -25,7 +25,7 @@ export const permissionsResources = {
       'Global panels, visual themes, security policies and external services',
     plugins: 'Plugins',
     pluginsDescription:
-      'Validate trusted plugin packages and inspect installed plugin state',
+      'Validate trusted plugin packages and manage installed plugin lifecycle',
   },
   items: {
     usersView: 'View users',
@@ -90,5 +90,8 @@ export const permissionsResources = {
     pluginsValidate: 'Validate plugins',
     pluginsValidateDescription:
       'Validate and record signed plugin packages before installation',
+    pluginsManage: 'Manage plugins',
+    pluginsManageDescription:
+      'Install, enable, disable, upgrade and uninstall trusted plugins',
   },
 }

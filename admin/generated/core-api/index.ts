@@ -110,6 +110,39 @@ export interface PluginListItem {
 }
 
 
+export interface PluginOperationListItem {
+  id: string
+  operation_id: string
+  plugin_id: string
+  plugin_version_id?: string | null
+  type: string
+  state: string
+  progress: number
+  message?: string | null
+  last_error?: string | null
+  user_id?: string | null
+  started_at?: string | null
+  finished_at?: string | null
+}
+
+
+export interface PluginOperationResult {
+  operation: PluginOperationListItem
+}
+
+
+export interface PluginPathRequest {
+  path: string
+}
+
+
+export interface PluginUninstallRequest {
+  confirm: boolean
+  delete_data?: boolean
+  delete_data_confirm?: boolean
+}
+
+
 export interface PluginValidateRequest {
   path: string
 }
@@ -226,6 +259,14 @@ export function deleteUser(id: string, options?: RequestOptions): Promise<ApiRes
   return request<null>('DELETE', `/api/v1/admin/users/${id}`, undefined, options)
 }
 
+export function disablePlugin(id: string, options?: RequestOptions): Promise<ApiResponse<PluginOperationResult>> {
+  return request<PluginOperationResult>('POST', `/api/v1/admin/plugins/${id}/disable`, undefined, options)
+}
+
+export function enablePlugin(id: string, options?: RequestOptions): Promise<ApiResponse<PluginOperationResult>> {
+  return request<PluginOperationResult>('POST', `/api/v1/admin/plugins/${id}/enable`, undefined, options)
+}
+
 export function getCurrentUser(options?: RequestOptions): Promise<ApiResponse<AuthUser>> {
   return request<AuthUser>('GET', `/api/v1/auth/me`, undefined, options)
 }
@@ -236,6 +277,14 @@ export function getMenu(id: string, options?: RequestOptions): Promise<ApiRespon
 
 export function getPermission(id: string, options?: RequestOptions): Promise<ApiResponse<PermissionListItem>> {
   return request<PermissionListItem>('GET', `/api/v1/admin/permissions/${id}`, undefined, options)
+}
+
+export function getPlugin(id: string, options?: RequestOptions): Promise<ApiResponse<PluginListItem>> {
+  return request<PluginListItem>('GET', `/api/v1/admin/plugins/${id}`, undefined, options)
+}
+
+export function getPluginOperation(operationID: string, options?: RequestOptions): Promise<ApiResponse<PluginOperationListItem>> {
+  return request<PluginOperationListItem>('GET', `/api/v1/admin/plugin-operations/${operationID}`, undefined, options)
 }
 
 export function getRole(id: string, options?: RequestOptions): Promise<ApiResponse<RoleListItem>> {
@@ -250,6 +299,10 @@ export function getUser(id: string, options?: RequestOptions): Promise<ApiRespon
   return request<UserListItem>('GET', `/api/v1/admin/users/${id}`, undefined, options)
 }
 
+export function installPlugin(body: FormData, options?: RequestOptions): Promise<ApiResponse<PluginOperationResult>> {
+  return request<PluginOperationResult>('POST', `/api/v1/admin/plugins/install`, body, options)
+}
+
 export function listAuditLogs(params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<AuditLogListItem[]>> {
   return request<AuditLogListItem[]>('GET', `/api/v1/admin/audit-logs`, undefined, mergeOptions(options, params))
 }
@@ -262,8 +315,16 @@ export function listPermissions(params?: CoreListQuery, options?: RequestOptions
   return request<PermissionListItem[]>('GET', `/api/v1/admin/permissions`, undefined, mergeOptions(options, params))
 }
 
+export function listPluginOperations(id: string, params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<PluginOperationListItem[]>> {
+  return request<PluginOperationListItem[]>('GET', `/api/v1/admin/plugins/${id}/logs`, undefined, mergeOptions(options, params))
+}
+
 export function listPlugins(params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<PluginListItem[]>> {
   return request<PluginListItem[]>('GET', `/api/v1/admin/plugins`, undefined, mergeOptions(options, params))
+}
+
+export function listPluginVersions(id: string, params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<PluginVersionListItem[]>> {
+  return request<PluginVersionListItem[]>('GET', `/api/v1/admin/plugins/${id}/versions`, undefined, mergeOptions(options, params))
 }
 
 export function listRoles(params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<RoleListItem[]>> {
@@ -286,6 +347,10 @@ export function logout(options?: RequestOptions): Promise<ApiResponse<null>> {
   return request<null>('POST', `/api/v1/auth/logout`, undefined, options)
 }
 
+export function uninstallPlugin(id: string, body: PluginUninstallRequest, options?: RequestOptions): Promise<ApiResponse<PluginOperationResult>> {
+  return request<PluginOperationResult>('POST', `/api/v1/admin/plugins/${id}/uninstall`, body, options)
+}
+
 export function updateMenu(id: string, body: MenuWriteRequest, options?: RequestOptions): Promise<ApiResponse<MenuListItem>> {
   return request<MenuListItem>('PUT', `/api/v1/admin/menus/${id}`, body, options)
 }
@@ -304,6 +369,10 @@ export function updateSetting(id: string, body: SettingWriteRequest, options?: R
 
 export function updateUser(id: string, body: UserWriteRequest, options?: RequestOptions): Promise<ApiResponse<UserListItem>> {
   return request<UserListItem>('PUT', `/api/v1/admin/users/${id}`, body, options)
+}
+
+export function upgradePlugin(id: string, body: FormData, options?: RequestOptions): Promise<ApiResponse<PluginOperationResult>> {
+  return request<PluginOperationResult>('POST', `/api/v1/admin/plugins/${id}/upgrade`, body, options)
 }
 
 export function validatePlugin(body: PluginValidateRequest, options?: RequestOptions): Promise<ApiResponse<PluginValidationResult>> {

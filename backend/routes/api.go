@@ -15,7 +15,7 @@ func API() {
 	authController := controllers.NewAuthController()
 	resolver := middleware.NewDatabaseUserResolver()
 	resourceController := controllers.NewCoreResourceController(resolver)
-	pluginController := controllers.NewPluginController()
+	pluginController := controllers.NewPluginController(PluginLifecycleService())
 
 	facades.Route().Prefix("/api/v1/auth").Post("/login", func(ctx http.Context) http.Response {
 		return authController.Login(ctx)
@@ -66,8 +66,35 @@ func API() {
 	admin.Middleware(middleware.RequirePermission("plugins.view", resolver)).Get("/plugins", func(ctx http.Context) http.Response {
 		return pluginController.List(ctx)
 	})
+	admin.Middleware(middleware.RequirePermission("plugins.view", resolver)).Get("/plugins/{id}", func(ctx http.Context) http.Response {
+		return pluginController.Detail(ctx)
+	})
 	admin.Middleware(middleware.RequirePermission("plugins.validate", resolver)).Post("/plugins/validate", func(ctx http.Context) http.Response {
 		return pluginController.Validate(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.manage", resolver)).Post("/plugins/install", func(ctx http.Context) http.Response {
+		return pluginController.Install(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.manage", resolver)).Post("/plugins/{id}/enable", func(ctx http.Context) http.Response {
+		return pluginController.Enable(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.manage", resolver)).Post("/plugins/{id}/disable", func(ctx http.Context) http.Response {
+		return pluginController.Disable(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.manage", resolver)).Post("/plugins/{id}/upgrade", func(ctx http.Context) http.Response {
+		return pluginController.Upgrade(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.manage", resolver)).Post("/plugins/{id}/uninstall", func(ctx http.Context) http.Response {
+		return pluginController.Uninstall(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.view", resolver)).Get("/plugins/{id}/versions", func(ctx http.Context) http.Response {
+		return pluginController.Versions(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.view", resolver)).Get("/plugins/{id}/logs", func(ctx http.Context) http.Response {
+		return pluginController.Logs(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.view", resolver)).Get("/plugin-operations/{operationID}", func(ctx http.Context) http.Response {
+		return pluginController.Operation(ctx)
 	})
 
 	admin.Middleware(middleware.RequirePermission("users.create", resolver)).Post("/users", func(ctx http.Context) http.Response {

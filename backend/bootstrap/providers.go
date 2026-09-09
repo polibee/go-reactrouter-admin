@@ -56,5 +56,6 @@ func Providers() []foundation.ServiceProvider {
 		&schedule.ServiceProvider{},
 		&telemetry.ServiceProvider{},
 		&testing.ServiceProvider{},
+		&PluginServiceProvider{},
 	}
 }

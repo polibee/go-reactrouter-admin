@@ -118,8 +118,35 @@
     "/api/v1/admin/plugins": {
       "$ref": "#/components/pathItems/Plugins"
     },
+    "/api/v1/admin/plugins/{id}": {
+      "$ref": "#/components/pathItems/PluginWithGet"
+    },
     "/api/v1/admin/plugins/validate": {
       "$ref": "#/components/pathItems/PluginValidate"
+    },
+    "/api/v1/admin/plugins/install": {
+      "$ref": "#/components/pathItems/PluginInstall"
+    },
+    "/api/v1/admin/plugins/{id}/enable": {
+      "$ref": "#/components/pathItems/PluginEnable"
+    },
+    "/api/v1/admin/plugins/{id}/disable": {
+      "$ref": "#/components/pathItems/PluginDisable"
+    },
+    "/api/v1/admin/plugins/{id}/upgrade": {
+      "$ref": "#/components/pathItems/PluginUpgrade"
+    },
+    "/api/v1/admin/plugins/{id}/uninstall": {
+      "$ref": "#/components/pathItems/PluginUninstall"
+    },
+    "/api/v1/admin/plugins/{id}/versions": {
+      "$ref": "#/components/pathItems/PluginVersions"
+    },
+    "/api/v1/admin/plugins/{id}/logs": {
+      "$ref": "#/components/pathItems/PluginLogs"
+    },
+    "/api/v1/admin/plugin-operations/{operationID}": {
+      "$ref": "#/components/pathItems/PluginOperation"
     }
   },
   "components": {
@@ -640,6 +667,38 @@
           }
         }
       },
+      "PluginPathRequest": {
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "PluginUninstallRequest": {
+        "type": "object",
+        "required": [
+          "confirm"
+        ],
+        "properties": {
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "delete_data": {
+            "type": "boolean",
+            "default": false
+          },
+          "delete_data_confirm": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
       "PluginDependency": {
         "type": "object",
         "required": [
@@ -760,6 +819,88 @@
           },
           "version": {
             "$ref": "#/components/schemas/PluginVersionListItem"
+          }
+        }
+      },
+      "PluginOperationListItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "operation_id",
+          "plugin_id",
+          "type",
+          "state",
+          "progress"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "plugin_version_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "PluginOperationResult": {
+        "type": "object",
+        "required": [
+          "operation"
+        ],
+        "properties": {
+          "operation": {
+            "$ref": "#/components/schemas/PluginOperationListItem"
           }
         }
       },
@@ -955,6 +1096,38 @@
           }
         ]
       },
+      "PluginVersionListEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ListEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "items": {
+                  "$ref": "#/components/schemas/PluginVersionListItem"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PluginOperationListEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ListEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "items": {
+                  "$ref": "#/components/schemas/PluginOperationListItem"
+                }
+              }
+            }
+          }
+        ]
+      },
       "ResourceEnvelope": {
         "type": "object",
         "required": [
@@ -1143,6 +1316,46 @@
           }
         }
       },
+      "PluginOperationResponse": {
+        "description": "Plugin lifecycle operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResourceEnvelope"
+            }
+          }
+        }
+      },
+      "PluginResponse": {
+        "description": "Installed plugin",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResourceEnvelope"
+            }
+          }
+        }
+      },
+      "PluginVersionListResponse": {
+        "description": "Installed plugin versions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PluginVersionListEnvelope"
+            }
+          }
+        }
+      },
+      "PluginOperationListResponse": {
+        "description": "Plugin lifecycle operations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PluginOperationListEnvelope"
+            }
+          }
+        }
+      },
       "NoContentResponse": {
         "description": "Resource deleted"
       }
@@ -1155,6 +1368,24 @@
         "schema": {
           "type": "string",
           "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "PluginID": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$"
+        }
+      },
+      "OperationID": {
+        "name": "operationID",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 8
         }
       },
       "Page": {
@@ -1352,9 +1583,54 @@
           "$ref": "#/components/x-operations/listPlugins"
         }
       },
+      "PluginWithGet": {
+        "get": {
+          "$ref": "#/components/x-operations/getPlugin"
+        }
+      },
       "PluginValidate": {
         "post": {
           "$ref": "#/components/x-operations/validatePlugin"
+        }
+      },
+      "PluginInstall": {
+        "post": {
+          "$ref": "#/components/x-operations/installPlugin"
+        }
+      },
+      "PluginEnable": {
+        "post": {
+          "$ref": "#/components/x-operations/enablePlugin"
+        }
+      },
+      "PluginDisable": {
+        "post": {
+          "$ref": "#/components/x-operations/disablePlugin"
+        }
+      },
+      "PluginUpgrade": {
+        "post": {
+          "$ref": "#/components/x-operations/upgradePlugin"
+        }
+      },
+      "PluginUninstall": {
+        "post": {
+          "$ref": "#/components/x-operations/uninstallPlugin"
+        }
+      },
+      "PluginVersions": {
+        "get": {
+          "$ref": "#/components/x-operations/listPluginVersions"
+        }
+      },
+      "PluginLogs": {
+        "get": {
+          "$ref": "#/components/x-operations/listPluginOperations"
+        }
+      },
+      "PluginOperation": {
+        "get": {
+          "$ref": "#/components/x-operations/getPluginOperation"
         }
       }
     },
@@ -2155,6 +2431,39 @@
           }
         }
       },
+      "getPlugin": {
+        "operationId": "getPlugin",
+        "summary": "Read an installed plugin",
+        "x-permission": "plugins.view",
+        "x-response-type": "PluginListItem",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
       "validatePlugin": {
         "operationId": "validatePlugin",
         "summary": "Validate and record a plugin package",
@@ -2184,6 +2493,307 @@
             "$ref": "#/components/responses/ApiErrorResponse"
           },
           "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "installPlugin": {
+        "operationId": "installPlugin",
+        "summary": "Install a validated plugin package",
+        "x-permission": "plugins.manage",
+        "x-response-type": "PluginOperationResult",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PluginPackageRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "enablePlugin": {
+        "operationId": "enablePlugin",
+        "summary": "Enable an installed plugin",
+        "x-permission": "plugins.manage",
+        "x-response-type": "PluginOperationResult",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "disablePlugin": {
+        "operationId": "disablePlugin",
+        "summary": "Disable an enabled plugin",
+        "x-permission": "plugins.manage",
+        "x-response-type": "PluginOperationResult",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "upgradePlugin": {
+        "operationId": "upgradePlugin",
+        "summary": "Upgrade a plugin with rollback on health failure",
+        "x-permission": "plugins.manage",
+        "x-response-type": "PluginOperationResult",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PluginPackageRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "uninstallPlugin": {
+        "operationId": "uninstallPlugin",
+        "summary": "Uninstall a plugin while retaining data by default",
+        "x-permission": "plugins.manage",
+        "x-response-type": "PluginOperationResult",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PluginUninstallRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "listPluginVersions": {
+        "operationId": "listPluginVersions",
+        "summary": "List installed plugin versions",
+        "x-permission": "plugins.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginVersionListResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "listPluginOperations": {
+        "operationId": "listPluginOperations",
+        "summary": "List plugin lifecycle operations",
+        "x-permission": "plugins.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationListResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "getPluginOperation": {
+        "operationId": "getPluginOperation",
+        "summary": "Read a plugin lifecycle operation",
+        "x-permission": "plugins.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OperationID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginOperationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
             "$ref": "#/components/responses/ApiErrorResponse"
           }
         }
@@ -2249,6 +2859,40 @@
             }
           }
         }
+      },
+      "PluginPackageRequest": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "package"
+              ],
+              "properties": {
+                "package": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PluginPathRequest"
+            }
+          }
+        }
+      },
+      "PluginUninstallRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PluginUninstallRequest"
+            }
+          }
+        }
       }
     }
   },
@@ -2283,6 +2927,15 @@
     "deleteSetting": "settings.delete",
     "listAuditLogs": "audit.view",
     "listPlugins": "plugins.view",
-    "validatePlugin": "plugins.validate"
+    "getPlugin": "plugins.view",
+    "validatePlugin": "plugins.validate",
+    "installPlugin": "plugins.manage",
+    "enablePlugin": "plugins.manage",
+    "disablePlugin": "plugins.manage",
+    "upgradePlugin": "plugins.manage",
+    "uninstallPlugin": "plugins.manage",
+    "listPluginVersions": "plugins.view",
+    "listPluginOperations": "plugins.view",
+    "getPluginOperation": "plugins.view"
   }
 }

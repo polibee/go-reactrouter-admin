@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 
 	contractsorm "github.com/goravel/framework/contracts/database/orm"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/polibee/go-reactrouter/backend/app/facades"
 	"github.com/polibee/go-reactrouter/backend/app/models"
+	"github.com/polibee/go-reactrouter/backend/app/services"
 	"github.com/polibee/go-reactrouter/backend/internal/contracts"
 	"github.com/polibee/go-reactrouter/backend/internal/pluginhost"
 )
@@ -40,14 +42,22 @@ type PluginValidateRequest struct {
 	Path string `json:"path"`
 }
 
-type PluginController struct{}
+type PluginController struct {
+	lifecycle *services.PluginLifecycleService
+}
 
-func NewPluginController() *PluginController { return &PluginController{} }
+func NewPluginController(lifecycle ...*services.PluginLifecycleService) *PluginController {
+	controller := &PluginController{}
+	if len(lifecycle) > 0 {
+		controller.lifecycle = lifecycle[0]
+	}
+	return controller
+}
 
 func (controller *PluginController) List(ctx contractshttp.Context) contractshttp.Response {
 	query := listQueryFromRequest(ctx)
 	plugins := make([]models.Plugin, 0)
-	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Plugin{}).With("Versions").OrderByDesc("id")
+	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Plugin{}).With("Versions").Where("state", "!=", "uninstalled").OrderByDesc("id")
 	if query.Search != "" {
 		databaseQuery = databaseQuery.WhereAny([]string{"plugin_id", "name", "display_name"}, "like", "%"+query.Search+"%")
 	}
@@ -60,6 +70,162 @@ func (controller *PluginController) List(ctx contractshttp.Context) contractshtt
 		items = append(items, pluginListItem(plugin))
 	}
 	return paginatedResponse(ctx, items, query, total)
+}
+
+func (controller *PluginController) Detail(ctx contractshttp.Context) contractshttp.Response {
+	var plugin models.Plugin
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Plugin{}).With("Versions").Where("plugin_id", ctx.Request().Route("id")).First(&plugin); err != nil || plugin.ID == 0 || plugin.State == string(contracts.PluginStateUninstalled) {
+		return notFoundFailure(ctx, "plugin")
+	}
+	return ctx.Response().Success().Json(contracts.Success(pluginListItem(plugin)))
+}
+
+func (controller *PluginController) Install(ctx contractshttp.Context) contractshttp.Response {
+	return controller.installOrUpgrade(ctx, services.OperationInstall)
+}
+
+func (controller *PluginController) Upgrade(ctx contractshttp.Context) contractshttp.Response {
+	return controller.installOrUpgrade(ctx, services.OperationUpgrade)
+}
+
+func (controller *PluginController) Enable(ctx contractshttp.Context) contractshttp.Response {
+	if controller.lifecycle == nil {
+		return failureResponse(ctx, contractshttp.StatusInternalServerError, "plugin.lifecycle_unavailable", "plugin lifecycle service is unavailable")
+	}
+	operation, err := controller.lifecycle.Enable(ctx, ctx.Request().Route("id"), authenticatedUserID(ctx))
+	return controller.lifecycleResponse(ctx, operation, err)
+}
+
+func (controller *PluginController) Disable(ctx contractshttp.Context) contractshttp.Response {
+	if controller.lifecycle == nil {
+		return failureResponse(ctx, contractshttp.StatusInternalServerError, "plugin.lifecycle_unavailable", "plugin lifecycle service is unavailable")
+	}
+	operation, err := controller.lifecycle.Disable(ctx, ctx.Request().Route("id"), authenticatedUserID(ctx))
+	return controller.lifecycleResponse(ctx, operation, err)
+}
+
+func (controller *PluginController) Uninstall(ctx contractshttp.Context) contractshttp.Response {
+	if controller.lifecycle == nil {
+		return failureResponse(ctx, contractshttp.StatusInternalServerError, "plugin.lifecycle_unavailable", "plugin lifecycle service is unavailable")
+	}
+	var request PluginUninstallRequest
+	if err := ctx.Request().Bind(&request); err != nil || !request.Confirm {
+		return failureResponse(ctx, contractshttp.StatusUnprocessableEntity, "plugin.confirmation_required", "confirm must be true to uninstall a plugin")
+	}
+	if request.DeleteData && !request.DeleteDataConfirm {
+		return failureResponse(ctx, contractshttp.StatusUnprocessableEntity, "plugin.data_confirmation_required", "delete_data_confirm must be true when deleting plugin data")
+	}
+	operation, err := controller.lifecycle.Uninstall(ctx, ctx.Request().Route("id"), request.DeleteData, authenticatedUserID(ctx))
+	return controller.lifecycleResponse(ctx, operation, err)
+}
+
+func (controller *PluginController) Versions(ctx contractshttp.Context) contractshttp.Response {
+	query := listQueryFromRequest(ctx)
+	var plugin models.Plugin
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Plugin{}).With("Versions").Where("plugin_id", ctx.Request().Route("id")).First(&plugin); err != nil || plugin.ID == 0 {
+		return notFoundFailure(ctx, "plugin")
+	}
+	items := make([]map[string]any, 0, len(plugin.Versions))
+	for _, version := range plugin.Versions {
+		items = append(items, pluginVersionListItem(version))
+	}
+	pageItems, total := paginateItems(items, query)
+	return paginatedResponse(ctx, pageItems, query, total)
+}
+
+func (controller *PluginController) Logs(ctx contractshttp.Context) contractshttp.Response {
+	query := listQueryFromRequest(ctx)
+	var plugin models.Plugin
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Plugin{}).Where("plugin_id", ctx.Request().Route("id")).First(&plugin); err != nil || plugin.ID == 0 {
+		return notFoundFailure(ctx, "plugin")
+	}
+	operations := make([]models.PluginOperation, 0)
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.PluginOperation{}).Where("plugin_id", plugin.ID).OrderByDesc("id").Get(&operations); err != nil {
+		return resourceLookupFailure(ctx, "plugin operations")
+	}
+	items := make([]map[string]any, 0, len(operations))
+	for _, operation := range operations {
+		items = append(items, pluginOperationListItem(operation))
+	}
+	pageItems, total := paginateItems(items, query)
+	return paginatedResponse(ctx, pageItems, query, total)
+}
+
+func (controller *PluginController) Operation(ctx contractshttp.Context) contractshttp.Response {
+	var operation models.PluginOperation
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.PluginOperation{}).Where("operation_id", ctx.Request().Route("operationID")).First(&operation); err != nil || operation.ID == 0 {
+		return notFoundFailure(ctx, "plugin operation")
+	}
+	return ctx.Response().Success().Json(contracts.Success(pluginOperationListItem(operation)))
+}
+
+type PluginUninstallRequest struct {
+	Confirm           bool `json:"confirm"`
+	DeleteData        bool `json:"delete_data"`
+	DeleteDataConfirm bool `json:"delete_data_confirm"`
+}
+
+func (controller *PluginController) installOrUpgrade(ctx contractshttp.Context, operationType string) contractshttp.Response {
+	if controller.lifecycle == nil {
+		return failureResponse(ctx, contractshttp.StatusInternalServerError, "plugin.lifecycle_unavailable", "plugin lifecycle service is unavailable")
+	}
+	packagePath, cleanup, err := pluginPackagePath(ctx)
+	if err != nil {
+		return failureResponse(ctx, contractshttp.StatusUnprocessableEntity, "plugin.package_required", err.Error())
+	}
+	if cleanup != nil {
+		defer cleanup()
+	}
+	validated, err := pluginhost.ValidatePackage(packagePath, pluginPlatform())
+	if err != nil {
+		return failureResponse(ctx, contractshttp.StatusUnprocessableEntity, pluginhost.ErrorCode(err), err.Error())
+	}
+	if operationType == services.OperationUpgrade && validated.Manifest.ID != ctx.Request().Route("id") {
+		return failureResponse(ctx, contractshttp.StatusUnprocessableEntity, "plugin.id_mismatch", "upgrade package id does not match the route plugin id")
+	}
+	var operationRecord models.PluginOperation
+	if operationType == services.OperationUpgrade {
+		operationRecord, err = controller.lifecycle.Upgrade(ctx, validated, authenticatedUserID(ctx))
+	} else {
+		operationRecord, err = controller.lifecycle.Install(ctx, validated, authenticatedUserID(ctx))
+	}
+	return controller.lifecycleResponse(ctx, operationRecord, err)
+}
+
+func (controller *PluginController) lifecycleResponse(ctx contractshttp.Context, operation models.PluginOperation, err error) contractshttp.Response {
+	if err != nil {
+		status := contractshttp.StatusInternalServerError
+		code := "plugin.lifecycle_failed"
+		switch {
+		case errors.Is(err, services.ErrPluginNotFound):
+			status, code = contractshttp.StatusNotFound, "plugin.not_found"
+		case errors.Is(err, services.ErrVersionConflict):
+			status, code = contractshttp.StatusConflict, "plugin.version_conflict"
+		case errors.Is(err, services.ErrPluginAlreadyRemoved):
+			status, code = contractshttp.StatusConflict, "plugin.already_uninstalled"
+		case errors.Is(err, services.ErrPluginDataDelete):
+			status, code = contractshttp.StatusConflict, "plugin.data_delete_unavailable"
+		case strings.Contains(err.Error(), "invalid plugin state transition"):
+			status, code = contractshttp.StatusUnprocessableEntity, "plugin.invalid_state_transition"
+		}
+		return failureResponse(ctx, status, code, err.Error())
+	}
+	return ctx.Response().Success().Json(contracts.Success(map[string]any{
+		"operation": pluginOperationListItem(operation),
+	}))
+}
+
+func authenticatedUserID(ctx contractshttp.Context) *uint {
+	value, err := facades.Auth(ctx).ID()
+	if err != nil {
+		return nil
+	}
+	parsed, err := strconv.ParseUint(value, 10, 64)
+	if err != nil || parsed == 0 {
+		return nil
+	}
+	result := uint(parsed)
+	return &result
 }
 
 func (controller *PluginController) Validate(ctx contractshttp.Context) contractshttp.Response {
@@ -132,6 +298,31 @@ func pluginVersionListItem(version models.PluginVersion) map[string]any {
 		"state":            version.State,
 		"health_status":    version.HealthStatus,
 	}
+}
+
+func pluginOperationListItem(operation models.PluginOperation) map[string]any {
+	return map[string]any{
+		"id":                fmt.Sprintf("%d", operation.ID),
+		"operation_id":      operation.OperationID,
+		"plugin_id":         fmt.Sprintf("%d", operation.PluginID),
+		"plugin_version_id": optionalUintString(operation.PluginVersionID),
+		"type":              operation.Type,
+		"state":             operation.State,
+		"progress":          operation.Progress,
+		"message":           operation.Message,
+		"last_error":        operation.LastError,
+		"user_id":           optionalUintString(operation.UserID),
+		"started_at":        operation.StartedAt,
+		"finished_at":       operation.FinishedAt,
+	}
+}
+
+func optionalUintString(value *uint) *string {
+	if value == nil {
+		return nil
+	}
+	result := strconv.FormatUint(uint64(*value), 10)
+	return &result
 }
 
 func pluginPackagePath(ctx contractshttp.Context) (string, func(), error) {

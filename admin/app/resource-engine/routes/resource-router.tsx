@@ -70,6 +70,14 @@ export function ResourceRouter() {
     return <ResourceForbiddenState />
   }
 
+  const customPage = resource.customPages?.find(
+    (page) => page.path === rest.join('/'),
+  )
+  if (customPage) {
+    const Page = customPage.component
+    return <Page />
+  }
+
   if (rest.length === 0) {
     return <ResourceListPage resource={resource} />
   }

@@ -173,6 +173,12 @@ export const SYSTEM_PERMISSION_GROUPS = [
         description: 'resources.permissions.items.pluginsValidateDescription',
         module: 'plugins',
       },
+      {
+        code: 'plugins.manage',
+        name: 'resources.permissions.items.pluginsManage',
+        description: 'resources.permissions.items.pluginsManageDescription',
+        module: 'plugins',
+      },
     ],
   },
 ] as const

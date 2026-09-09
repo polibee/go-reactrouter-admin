@@ -10,7 +10,10 @@ export interface RequestOptions {
 }
 
 function createRequestId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
     return crypto.randomUUID()
   }
   return `req-${Date.now()}-${Math.random().toString(16).slice(2)}`
@@ -31,15 +34,19 @@ async function request<T>(
   body?: unknown,
   options: RequestOptions = {},
 ): Promise<ApiResponse<T>> {
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   const response = await fetch(buildUrl(path, options.query), {
     method,
     credentials: 'include',
     headers: {
       'X-Request-ID': options.headers?.['X-Request-ID'] ?? createRequestId(),
-      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(body !== undefined && !isFormData
+        ? { 'Content-Type': 'application/json' }
+        : {}),
       ...options.headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body:
+      body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     signal: options.signal,
   })
 

@@ -351,23 +351,35 @@ The implementation should be executed as several independently reviewable sub-pr
 
 **Files:**
 
-- Modify: `backend/app/Services/PluginRuntimeService.go`
-- Modify: `backend/app/Http/Controllers/PluginController.go`
+- Create: `backend/app/services/plugin_lifecycle_service.go`
+- Modify: `backend/app/services/plugin_runtime_service.go`
+- Modify: `backend/app/http/controllers/plugin_controller.go`
+- Modify: `backend/routes/api.go`
 - Modify: `backend/routes/plugin_api.go`
-- Create: `backend/app/Jobs/InstallPlugin.go`
-- Create: `backend/app/Jobs/UpgradePlugin.go`
-- Create: `backend/app/Jobs/UninstallPlugin.go`
-- Create: `admin/app/core-resources/plugins/resource.tsx`
-- Create: `admin/app/core-resources/plugins/api.ts`
-- Create: `admin/app/core-resources/plugins/components/plugin-install-dialog.tsx`
-- Create: `admin/app/core-resources/plugins/components/plugin-state-badge.tsx`
-- Create: `admin/app/core-resources/plugins/components/plugin-actions.tsx`
-- Modify: `admin/app/core-resources/index.ts`
-- Test: lifecycle service tests, rollback tests, and browser workflow tests
+- Create: `backend/bootstrap/plugin_provider.go`
+- Create: `backend/app/models/plugin_operation.go`
+- Create: `backend/database/migrations/20260909000003_create_plugin_operations.go`
+- Modify: `backend/bootstrap/migrations.go`
+- Create: `backend/internal/pluginlifecycle/state_machine.go`
+- Create: `backend/internal/pluginlifecycle/state_machine_test.go`
+- Modify: `backend/tests/integration/core_resources_test.go`
+- Modify: `contracts/core-admin.openapi.json`
+- Modify: `tools/openapi-codegen/generate.mjs`
+- Modify: `admin/app/core/api/request.ts`
+- Create: `admin/app/resources/plugins/types.ts`
+- Create: `admin/app/resources/plugins/api.ts`
+- Create: `admin/app/resources/plugins/resource.tsx`
+- Create: `admin/app/resources/plugins/plugin-management-page.tsx`
+- Modify: `admin/app/resources/index.ts`
+- Modify: `admin/app/resources/roles/permissions.ts`
+- Modify: `admin/app/locales/en/resources/permissions.ts`
+- Modify: `admin/app/resource-engine/routes/resource-router.tsx`
+- Test: lifecycle state machine, lifecycle read/confirmation integration, generated-client and browser workflow tests
 
 **Interfaces:**
 
 - `POST /api/v1/admin/plugins/install`
+- `GET /api/v1/admin/plugins/:id`
 - `POST /api/v1/admin/plugins/:id/enable`
 - `POST /api/v1/admin/plugins/:id/disable`
 - `POST /api/v1/admin/plugins/:id/upgrade`
@@ -375,15 +387,19 @@ The implementation should be executed as several independently reviewable sub-pr
 - `GET /api/v1/admin/plugins/:id/logs`
 - `GET /api/v1/admin/plugins/:id/versions`
 
-- [ ] Write failing lifecycle tests for install success, repeated install, missing dependency, migration failure, enable failure, disable idempotency, upgrade rollback, and uninstall data retention.
-- [ ] Implement install as a state machine with durable state transitions and a unique operation ID.
+- [x] Write failing lifecycle state-transition tests and integration checks for version/log reads and uninstall confirmation; package/process failure matrix remains for the database-backed lifecycle suite.
+- [x] Implement install and lifecycle operations as durable state transitions with a unique operation ID.
+- [x] Serialize lifecycle operations in the Core process and reconcile enabled plugin processes after restart.
+- [x] Keep install from switching an already-running current version; support reinstalling a retained, uninstalled version record.
+- [x] Expose exact plugin detail lookup and register `plugins.manage` in the role permission catalog.
 - [ ] Execute migrations before enabling routes and permissions.
 - [ ] Register permissions and menus in a transaction or compensating cleanup step.
-- [ ] Require a confirmation flag for uninstall and a separate confirmation for data deletion.
-- [ ] Keep old plugin files and version metadata until the new version passes health checks.
-- [ ] Implement the plugin admin resource using the existing Resource Engine rather than a bespoke table.
-- [ ] Add install progress and last-error display without polling more frequently than the configured interval.
+- [x] Require a confirmation flag for uninstall and a separate confirmation for data deletion.
+- [x] Keep old plugin files and version metadata until the new version passes health checks; failed upgrades restore the old current version.
+- [x] Implement the plugin admin resource using the existing Resource Engine and a custom lifecycle page rather than a bespoke list system.
+- [x] Persist operation progress and last-error fields; asynchronous polling UI remains for a later slice.
 - [ ] Add browser tests covering upload/install, enable, navigation visibility, API access, disable, refresh, and uninstall.
+- [ ] Publish frontend plugin assets and complete browser lifecycle tests.
 - [ ] Commit as `feat: expose plugin lifecycle in admin`.
 
 **Acceptance:** A user can install the example plugin from the admin UI, use its page, disable it, observe its menu and API disappear, re-enable it, upgrade it, and uninstall it while its business data remains by default.

@@ -17,8 +17,18 @@ import (
 )
 
 var pluginRuntimeService = services.NewPluginRuntimeService(services.PluginRuntimeConfig{})
+var pluginLifecycleService *services.PluginLifecycleService
 
 func PluginRuntimeService() *services.PluginRuntimeService { return pluginRuntimeService }
+
+func PluginLifecycleService() *services.PluginLifecycleService {
+	if pluginLifecycleService == nil {
+		pluginLifecycleService = services.NewPluginLifecycleService(services.PluginLifecycleConfig{
+			Runtime: pluginRuntimeService,
+		})
+	}
+	return pluginLifecycleService
+}
 
 // RegisterPluginGatewayRoutes exposes the stable Core prefix used by frontend
 // clients. The plugin process is never exposed directly to a browser.

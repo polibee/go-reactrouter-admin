@@ -121,10 +121,12 @@ function collectSchemaRefs(document, rawSchema, usedSchemas, visited = new Set()
 
 function requestBodyType(document, operation) {
   const requestBody = resolveDeep(document, operation.requestBody)
+  if (requestBody?.content?.['multipart/form-data']) return 'FormData'
   return schemaName(requestBody?.content?.['application/json']?.schema) ?? 'Record<string, unknown>'
 }
 
 function responseType(operation) {
+  if (operation['x-response-type']) return operation['x-response-type']
   if (operation.operationId?.startsWith('list')) {
     const resource = operation.operationId.replace(/^list/, '').replace(/s$/, '')
     return `${resource}ListItem[]`
