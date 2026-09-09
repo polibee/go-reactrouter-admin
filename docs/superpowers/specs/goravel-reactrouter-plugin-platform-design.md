@@ -185,7 +185,7 @@ go-reactrouter/
     └── openapi-codegen/
 ```
 
-当前 `reactrouteradmin` 是前端基础仓库，`go-reactrouter` 是目标整合项目。整合时应保留 ReactRouterAdmin 的核心实现，不把 `docs/reactrouteradmin` 继续当作生产源码目录。
+当前 `admin/` 是 ReactRouterAdmin 的前端基础实现，`go-reactrouter` 是目标整合项目。整合时保留 `admin/` 的核心实现，不再维护额外的源码快照目录。
 
 ## 5. 插件包契约
 

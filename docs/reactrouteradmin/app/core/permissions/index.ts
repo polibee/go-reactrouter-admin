@@ -1,5 +1,0 @@
-export * from './can'
-export * from './permission-provider'
-export * from './permission.service'
-export * from './permission.types'
-export * from './use-permission'

@@ -47,7 +47,7 @@ code uses `credentials: include` and never reads the token directly.
 
 ## Resource list query
 
-The first remote provider supports:
+The shared OpenAPI components reserve the following list-query vocabulary:
 
 ```text
 page
@@ -57,7 +57,7 @@ sort
 filter[field]
 ```
 
-The frontend maps this contract to `ResourceDataProvider<T>` and never assembles endpoint URLs in resource pages.
+The frontend maps this vocabulary to `ResourceDataProvider<T>` and never assembles endpoint URLs in resource pages. Core currently enables only `page`, `pageSize`, and `search` on its system resources; `sort` and `filter[field]` remain opt-in until a resource declares and implements their server-side semantics.
 
 The first Core admin resource slice exposes authenticated, permission-protected
 read endpoints for users, roles, permissions, menus, settings, and audit logs.

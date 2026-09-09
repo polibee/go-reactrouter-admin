@@ -255,8 +255,8 @@ The implementation should be executed as several independently reviewable sub-pr
 **Files:**
 
 - Create: `backend/openapi/core.openapi.json`
-- Create: `backend/internal/openapi/aggregate.go`
-- Create: `backend/internal/openapi/serve.go`
+- Create: `backend/openapi/aggregate.go`
+- Modify: `backend/openapi/serve.go`
 - Create: `tools/openapi-codegen/config.yaml`
 - Create: `tools/openapi-codegen/generate.go`
 - Create: `admin/generated/core-api/`
@@ -274,14 +274,14 @@ The implementation should be executed as several independently reviewable sub-pr
 - Generated service functions consumed by `ResourceDataProvider<T>` adapters
 
 - [x] Write a contract test that checks every documented operation has an `operationId`, response envelope, error schema, and permission metadata.
-- [ ] Define pagination, sort, filter, validation error, and authorization error components once in the Core OpenAPI components section.
+- [x] Define pagination, sort, filter, validation error, and authorization error components once in the Core OpenAPI components section; sort and filter remain opt-in until a resource implements their server-side semantics.
 - [x] Generate Core TypeScript types and client functions into `admin/generated/core-api`.
-- [ ] Generate the example plugin client into its frontend package.
+- [x] Generate the example plugin client into its frontend package.
 - [x] Make `app/core/api` inject authentication, request ID, abort signal, and normalized `ApiError` behavior around generated clients.
 - [x] Add a resource-provider adapter test for list, find, create, update, delete, pagination, and 422 errors.
-- [ ] Aggregate Core and enabled-plugin documents for Swagger UI without modifying plugin source files.
+- [x] Aggregate Core and enabled-plugin documents for Swagger UI without modifying plugin source files.
 - [x] Add a local stale check that fails when the generated client is stale compared with the OpenAPI source; CI wiring remains.
-- [ ] Commit as `feat: generate openapi contracts and clients`.
+- [x] Commit as `feat: generate openapi contracts and clients`.
 
 **Acceptance:** A frontend resource can use a generated service without writing a URL string, and the same operations appear in Swagger UI and the generated TypeScript client.
 

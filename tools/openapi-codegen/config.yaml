@@ -4,3 +4,6 @@ contracts:
 output:
   client: admin/generated/core-api/index.ts
   aggregate: backend/openapi/core.openapi.json
+pluginContracts:
+  - contract: plugins/sdk-go/example-plugin/openapi.json
+    output: plugins/sdk-ts/example-plugin/client.ts

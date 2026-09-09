@@ -4,7 +4,7 @@
 
 ## 当前结论
 
-项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证、Stage 3 插件包校验与状态持久化、Stage 4 插件独立进程与网关基础能力。主业务仍采用编译进主应用的模块化方式；当前下一步进入 Stage 5 插件 OpenAPI 客户端和合同聚合。
+项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证、Stage 3 插件包校验与状态持久化、Stage 4 插件独立进程与网关基础能力，正在收尾 Stage 5 的 OpenAPI 客户端和合同聚合。主业务仍采用编译进主应用的模块化方式。
 
 ## 已完成
 
@@ -43,13 +43,17 @@
 - Stage 4 已加入插件 SDK runtime，提供受 token 保护的 `/health`、`/metadata`、`/shutdown` 和插件 API 路由；示例插件已能独立编译运行。
 - Stage 4 已加入健康检查、重复失败转 `failed`、优雅停止后强制终止，以及只允许 `enabled` 状态的 Core 网关；Goravel 已注册 `/api/v1/plugins/{pluginID}/*path` 认证代理路由。
 - Stage 4 集成测试已覆盖“启动示例插件→等待健康→经网关访问→停用后拒绝→停止进程”的完整链路；进程健康失败计数也已加入跨数据库兼容迁移。
+- 已移除不再参与构建的旧源码/文档快照；生产前端唯一源码目录为 `admin/`。
+- Stage 5 已加入示例插件 OpenAPI 合同、生成的 `plugins/sdk-ts/example-plugin/client.ts` 和统一插件请求运行时。
+- Stage 5 已加入启用插件 OpenAPI 注册表、组件命名空间隔离、路径冲突检查及 `/openapi/plugins/{pluginId}.json`；`/openapi.json` 会聚合 Core 与启用插件合同。
+- Core OpenAPI 已集中定义分页、排序、字段过滤、校验错误和鉴权错误组件；排序与字段过滤目前只作为可选合同能力，未对 Core 资源宣称已实现。
 
 ## 未完成
 
 - Stage 2：Core 资源的生成客户端接入已完成；菜单当前仍是“可见且有权限的导航数据”接口，后续如需管理不可见菜单，应单独增加管理目录接口，不能复用导航过滤接口。
 - Stage 3：插件验证记录的后台管理页面、上传安装工作流和完整真实数据库插件生命周期测试仍待完成。
 - Stage 4：运行时进程/网关基础能力已完成；持久化数据库状态与完整启用、停用、升级、卸载事务仍留在 Stage 7，当前运行时 registry 是进程监督的易失状态。
-- Stage 5：插件 OpenAPI 客户端生成、启用插件合同聚合、CI 工作流和完整 TypeScript 编译验证仍待完成。
+- Stage 5：插件 OpenAPI 客户端和启用插件合同聚合已完成；CI 工作流、完整 TypeScript 编译验证和将插件文档注册接入持久化生命周期仍待完成。
 - Stage 6–9：前端插件页面宿主、安装/启停/升级/卸载 UI、安全加固和发布流程。
 
 ## 验证状态

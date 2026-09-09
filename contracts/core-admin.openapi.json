@@ -38,7 +38,9 @@
       "ID": { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" } },
       "Page": { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
       "PageSize": { "name": "pageSize", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 } },
-      "Search": { "name": "search", "in": "query", "schema": { "type": "string" } }
+      "Search": { "name": "search", "in": "query", "schema": { "type": "string" } },
+      "Sort": { "name": "sort", "in": "query", "description": "Reserved sort expression. Core list endpoints will advertise support when a resource enables it.", "schema": { "type": "string", "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*(:(asc|desc))?(,[a-zA-Z_][a-zA-Z0-9_]*(:(asc|desc))?)*$" } },
+      "Filter": { "name": "filter", "in": "query", "style": "deepObject", "explode": true, "description": "Reserved field filters. Core list endpoints will advertise support when a resource enables them.", "schema": { "type": "object", "additionalProperties": { "type": "string" } } }
     },
     "pathItems": {
       "UserWithGet": { "get": { "$ref": "#/components/x-operations/getUser" }, "put": { "$ref": "#/components/x-operations/updateUser" }, "delete": { "$ref": "#/components/x-operations/deleteUser" } },
@@ -116,6 +118,8 @@
       "PluginVersionListItem": { "type": "object", "required": ["id", "version", "package_hash", "state", "health_status"], "properties": { "id": { "type": "string" }, "version": { "type": "string" }, "package_hash": { "type": "string" }, "signature_key_id": { "type": ["string", "null"] }, "state": { "type": "string" }, "health_status": { "type": "string" } } },
       "PluginValidationResult": { "type": "object", "required": ["plugin", "version"], "properties": { "plugin": { "$ref": "#/components/schemas/PluginListItem" }, "version": { "$ref": "#/components/schemas/PluginVersionListItem" } } },
       "PageMeta": { "type": "object", "required": ["page", "pageSize", "total"], "properties": { "page": { "type": "integer" }, "pageSize": { "type": "integer" }, "total": { "type": "integer" } } },
+      "ValidationError": { "type": "object", "required": ["code", "message", "fields"], "properties": { "code": { "const": "validation_failed" }, "message": { "type": "string" }, "fields": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } } } },
+      "AuthorizationError": { "type": "object", "required": ["code", "message"], "properties": { "code": { "enum": ["unauthenticated", "forbidden"] }, "message": { "type": "string" } } },
       "ListEnvelope": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array" }, "meta": { "$ref": "#/components/schemas/PageMeta" }, "requestId": { "type": "string" } } },
       "UserListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/UserListItem" } } } }] },
       "RoleListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/RoleListItem" } } } }] },

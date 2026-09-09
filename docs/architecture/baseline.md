@@ -6,7 +6,7 @@
 - Admin source: ReactRouterAdmin `refactor/v2-admin-foundation`
 - Admin source commit: `08720c1d6668df11169cbb69638077e900432d25`
 - Admin baseline copy: `admin/`
-- Original documentation/source copy retained at: `docs/reactrouteradmin/`
+- Original ReactRouterAdmin source is retained in `admin/`; the obsolete documentation snapshot is not part of this repository.
 - Backend target: `backend/`
 - Backend framework: Goravel `v1.18.0`
 - Backend Go baseline: Go `1.25.0` or newer

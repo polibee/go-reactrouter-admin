@@ -37,7 +37,19 @@ func Web() {
 	})
 
 	facades.Route().Get("/openapi.json", func(ctx http.Context) http.Response {
-		return ctx.Response().Header("Content-Type", "application/json; charset=utf-8").Data(http.StatusOK, "application/json; charset=utf-8", openapi.Spec())
+		document, err := openapi.AggregatedSpec()
+		if err != nil {
+			return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": http.Json{"code": "openapi.aggregate_failed", "message": err.Error()}})
+		}
+		return ctx.Response().Header("Content-Type", "application/json; charset=utf-8").Data(http.StatusOK, "application/json; charset=utf-8", document)
+	})
+
+	facades.Route().Get("/openapi/plugins/{pluginId}.json", func(ctx http.Context) http.Response {
+		document, ok := openapi.PluginSpec(ctx.Request().Route("pluginId"))
+		if !ok {
+			return ctx.Response().Json(http.StatusNotFound, http.Json{"error": http.Json{"code": "openapi.plugin_not_found", "message": "plugin OpenAPI document was not found"}})
+		}
+		return ctx.Response().Header("Content-Type", "application/json; charset=utf-8").Data(http.StatusOK, "application/json; charset=utf-8", document)
 	})
 
 	facades.Route().Get("/docs", func(ctx http.Context) http.Response {

@@ -4,7 +4,17 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const files = ['contracts/core-auth.openapi.json', 'contracts/core-admin.openapi.json', 'contracts/plugin-runtime.openapi.json']
+const files = ['contracts/core-auth.openapi.json', 'contracts/core-admin.openapi.json', 'contracts/plugin-runtime.openapi.json', 'plugins/sdk-go/example-plugin/openapi.json']
+
+const coreAdmin = JSON.parse(await readFile(path.join(root, 'contracts/core-admin.openapi.json'), 'utf8'))
+const coreParameters = coreAdmin.components?.parameters ?? {}
+const coreSchemas = coreAdmin.components?.schemas ?? {}
+for (const name of ['Page', 'PageSize', 'Search', 'Sort', 'Filter']) {
+  if (!coreParameters[name]) throw new Error(`core-admin.openapi.json: missing shared parameter ${name}`)
+}
+for (const name of ['PageMeta', 'ValidationError', 'AuthorizationError']) {
+  if (!coreSchemas[name]) throw new Error(`core-admin.openapi.json: missing shared schema ${name}`)
+}
 
 for (const file of files) {
   const document = JSON.parse(await readFile(path.join(root, file), 'utf8'))

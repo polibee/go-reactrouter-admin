@@ -769,6 +769,49 @@
           }
         }
       },
+      "ValidationError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "fields"
+        ],
+        "properties": {
+          "code": {
+            "const": "validation_failed"
+          },
+          "message": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "AuthorizationError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "unauthenticated",
+              "forbidden"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "ListEnvelope": {
         "type": "object",
         "required": [
@@ -1125,6 +1168,28 @@
         "in": "query",
         "schema": {
           "type": "string"
+        }
+      },
+      "Sort": {
+        "name": "sort",
+        "in": "query",
+        "description": "Reserved sort expression. Core list endpoints will advertise support when a resource enables it.",
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*(:(asc|desc))?(,[a-zA-Z_][a-zA-Z0-9_]*(:(asc|desc))?)*$"
+        }
+      },
+      "Filter": {
+        "name": "filter",
+        "in": "query",
+        "style": "deepObject",
+        "explode": true,
+        "description": "Reserved field filters. Core list endpoints will advertise support when a resource enables them.",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
