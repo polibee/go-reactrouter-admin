@@ -1,28 +1,69 @@
-// biome-ignore-all lint/suspicious/useAwait: async signatures reserved for a future HTTP data source
-import type {
-  ResourceListQuery,
-  ResourceListResult,
-} from '~/resource-engine/resource'
-import { userService } from './service'
-import type { User, UserFormData } from './types'
+// biome-ignore-all lint/suspicious/useAwait: generated transport methods keep the async resource boundary
+import {
+  createUser,
+  deleteUser,
+  getUser,
+  listUsers,
+  updateUser,
+  type UserWriteRequest,
+} from '~/generated/core-api'
+import { createRemoteResourceProvider } from '~/resource-engine/resource'
+import type { User } from './types'
 
-export const userApi = {
-  async list(query?: ResourceListQuery): Promise<ResourceListResult<User>> {
-    const items = await userService.listUsers()
-    const search = query?.search?.toLowerCase()
-    const filtered = search
-      ? items.filter(
-          (item) =>
-            item.name.toLowerCase().includes(search) ||
-            item.email.toLowerCase().includes(search),
-        )
-      : items
-    return { items: filtered, total: filtered.length }
+function toUser(item: {
+  id: string
+  name: string
+  email: string
+  status: string
+  is_active: boolean
+}): User {
+  return {
+    id: item.id,
+    name: item.name,
+    email: item.email,
+    // The first Core slice does not load role relations in its list DTO yet.
+    role: 'user',
+    status: item.status === 'active' && item.is_active ? 'active' : 'inactive',
+    createdAt: '',
+    updatedAt: '',
+  }
+}
+
+function toWrite(values: Record<string, unknown>): UserWriteRequest {
+  const status = values.status === 'active' ? 'active' : 'disabled'
+  return {
+    name: String(values.name ?? ''),
+    email: String(values.email ?? ''),
+    status,
+    is_active: status === 'active',
+    ...(typeof values.password === 'string' && values.password
+      ? { password: values.password }
+      : {}),
+  }
+}
+
+export const userApi = createRemoteResourceProvider<User, Record<string, unknown>>({
+  async list(query) {
+    const response = await listUsers(query)
+    return { ...response, data: response.data.map(toUser) }
   },
-  find: (id: string) => userService.getUser(id),
-  create: (values: Record<string, unknown>) =>
-    userService.createUser(values as UserFormData),
-  update: (id: string, values: Record<string, unknown>) =>
-    userService.updateUser(id, values),
-  delete: (id: string) => userService.deleteUser(id),
+  async find(id) {
+    const response = await getUser(id)
+    return { ...response, data: toUser(response.data) }
+  },
+  async create(values) {
+    const response = await createUser(toWrite(values))
+    return { ...response, data: toUser(response.data) }
+  },
+  async update(id, values) {
+    const response = await updateUser(id, toWrite(values))
+    return { ...response, data: toUser(response.data) }
+  },
+  async delete(id) {
+    return deleteUser(id)
+  },
+})
+
+export function toUserWriteValues(values: Record<string, unknown>): UserWriteRequest {
+  return toWrite(values)
 }

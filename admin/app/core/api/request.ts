@@ -9,6 +9,13 @@ export interface RequestOptions {
   signal?: AbortSignal
 }
 
+function createRequestId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `req-${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
 function buildUrl(path: string, query?: RequestOptions['query']): string {
   const search = new URLSearchParams()
   for (const [key, value] of Object.entries(query ?? {})) {
@@ -28,6 +35,7 @@ async function request<T>(
     method,
     credentials: 'include',
     headers: {
+      'X-Request-ID': options.headers?.['X-Request-ID'] ?? createRequestId(),
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
     },

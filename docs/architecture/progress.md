@@ -4,7 +4,7 @@
 
 ## 当前结论
 
-项目已经完成 Stage 2 Core 资源写入的第一轮实现，进入真实 MySQL/PostgreSQL 环境验证阶段。主业务仍采用编译进主应用的模块化方式；运行时插件、插件安装器和独立插件进程仍未完成。
+项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证，并进入 Stage 5 OpenAPI 生成流水线的第一轮实现。主业务仍采用编译进主应用的模块化方式；运行时插件、插件安装器和独立插件进程仍未完成。
 
 ## 已完成
 
@@ -28,22 +28,28 @@
 - 菜单 API 已在服务端过滤不可见或当前用户无权限的菜单。
 - `backend/tests/integration/core_resources_test.go` 已覆盖真实 HTTP 登录、五类资源 CRUD、审计记录和迁移刷新；默认跳过，需 `DB_INTEGRATION=1` 且使用专用数据库。
 - Core Admin OpenAPI 合同已补充写入请求、路径参数、创建/修改/删除操作。
+- 宝塔环境已验证 PostgreSQL 18 和原生 MySQL 8.4 可启动；MySQL 兼容性已修复 `menus.key/settings.key` 保留字查询。
+- Core 集成测试已分别在 PostgreSQL 和 MySQL 专用数据库通过，覆盖登录、五类资源增改删、审计写入和菜单权限过滤。
+- OpenAPI 合同已加入操作权限元数据；`tools/openapi-codegen` 已实现合同校验、客户端生成、聚合文档生成和 stale 检查。
+- 后端已通过 `/openapi.json` 和 `/docs` 提供聚合合同；前端 `admin/generated/core-api` 已生成统一 Core client。
+- Resource Engine 已加入通用远程 Provider；用户资源已从前端 mock 切换为生成客户端，并补齐用户详情读取接口。
 
 ## 未完成
 
-- Stage 2：需要在宝塔安装并配置 MySQL、PostgreSQL 后，分别运行真实数据库集成测试；随后补充 OpenAPI 生成器和前端写入资源页面。
+- Stage 2：角色资源仍需从 mock provider 切换为生成客户端；权限、菜单、设置、审计的资源页面仍需补齐真实 Provider。
 - Stage 3：插件包校验、签名、依赖和持久化模型。
 - Stage 4：插件独立进程、健康检查、网关和生命周期控制。
-- Stage 5：OpenAPI 生成器、Swagger 聚合和 TypeScript client 生成流水线。
+- Stage 5：插件 OpenAPI 客户端生成、启用插件合同聚合、CI 工作流和完整 TypeScript 编译验证仍待完成。
 - Stage 6–9：前端插件页面宿主、安装/启停/升级/卸载 UI、安全加固和发布流程。
 
 ## 验证状态
 
 - `backend`: `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过。
-- `admin`: 本轮 `pnpm test:unit` 通过，7 个测试通过；本轮定向 Biome lint 通过。
-- `admin`: `pnpm validate` 通过；现有资源引擎仍有 4 条 lint warning，没有新增错误。
-- `admin`: 本轮 `pnpm typecheck` 未能在 `/mnt/d` 完成，React Router 类型生成再次卡在 Windows 挂载目录文件 I/O；不能把该命令标记为通过。
+- `admin`: 本轮 `pnpm test:unit` 通过，10 个测试通过。
+- `admin`: Biome lint 无新增错误，保留原资源引擎的 4 条 warning。
+- `admin`: `pnpm typecheck` 和 `pnpm build` 在 `/mnt/d` 的 Windows 挂载目录进入长时间文件 I/O，未将其标记为通过；需在 WSL 原生目录继续验证。
 - 开发服务：`pnpm dev --host 0.0.0.0` 最终监听 `5173`，但 `/` 请求在 `/mnt/d` 下超过 20 秒无响应；开发前端应复制到 WSL 原生目录后运行。
-- OpenAPI JSON 可被 Node 原生 JSON parser 解析。
+- `node tools/openapi-codegen/contract.test.mjs` 通过，并二次执行 stale 检查。
+- `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过；PostgreSQL 和 MySQL `DB_INTEGRATION=1` 集成测试均通过。
 - 默认 Go 测试包含集成测试包，但因未设置 `DB_INTEGRATION=1` 会安全跳过真实数据库操作。
 - ReactRouterAdmin 在 `/mnt/d` Windows 挂载目录启动开发服务时，首次 SSR 请求出现长时间阻塞；进程处于文件 I/O 等待状态。这是 WSL 跨文件系统开发目录的环境限制，需迁移到 WSL 原生目录或使用构建产物部署后再做浏览器 E2E。

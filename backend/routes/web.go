@@ -7,6 +7,7 @@ import (
 
 	"github.com/polibee/go-reactrouter/backend/app/facades"
 	"github.com/polibee/go-reactrouter/backend/modules"
+	"github.com/polibee/go-reactrouter/backend/openapi"
 )
 
 func Web() {
@@ -33,6 +34,14 @@ func Web() {
 				"status": "ok",
 			},
 		})
+	})
+
+	facades.Route().Get("/openapi.json", func(ctx http.Context) http.Response {
+		return ctx.Response().Header("Content-Type", "application/json; charset=utf-8").Data(http.StatusOK, "application/json; charset=utf-8", openapi.Spec())
+	})
+
+	facades.Route().Get("/docs", func(ctx http.Context) http.Response {
+		return ctx.Response().Header("Content-Type", "text/html; charset=utf-8").String(http.StatusOK, openapi.DocsHTML())
 	})
 
 	facades.Route().Static("public", "./public")

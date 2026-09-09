@@ -1,0 +1,6 @@
+contracts:
+  - contracts/core-auth.openapi.json
+  - contracts/core-admin.openapi.json
+output:
+  client: admin/generated/core-api/index.ts
+  aggregate: backend/openapi/core.openapi.json

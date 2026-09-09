@@ -154,8 +154,8 @@ The implementation should be executed as several independently reviewable sub-pr
 - [x] Implement permission-protected paginated read endpoints for users, roles, permissions, menus, settings, and audit logs.
 - [x] Implement menu filtering so the server returns only visible and authorized menu items.
 - [x] Implement audit logs for administrative resource mutations; login/logout audit events remain a follow-up hardening item.
-- [ ] Replace mock users and roles providers with generated-client adapters after the OpenAPI pipeline is available; until then use typed transport wrappers with the same contract.
-- [ ] Run backend migrations on clean MySQL and PostgreSQL test databases and execute all Core API tests; the opt-in integration suite is now present.
+- [ ] Replace mock users and roles providers with generated-client adapters after the OpenAPI pipeline is available; users are now switched, roles remain.
+- [x] Run backend migrations on clean MySQL and PostgreSQL test databases and execute all Core API tests; the opt-in integration suite is now present.
 - [ ] Commit as `feat: add goravel core admin runtime`.
 
 **Acceptance:** The frontend can log in, fetch the current user, render server-filtered navigation, manage users and roles, and receive consistent 401/403/422 responses from Goravel.
@@ -271,14 +271,14 @@ The implementation should be executed as several independently reviewable sub-pr
 - `GET /docs`
 - Generated service functions consumed by `ResourceDataProvider<T>` adapters
 
-- [ ] Write a contract test that checks every documented operation has an `operationId`, response envelope, error schema, and permission metadata.
+- [x] Write a contract test that checks every documented operation has an `operationId`, response envelope, error schema, and permission metadata.
 - [ ] Define pagination, sort, filter, validation error, and authorization error components once in the Core OpenAPI components section.
-- [ ] Generate Core TypeScript types and client functions into `admin/generated/core-api`.
+- [x] Generate Core TypeScript types and client functions into `admin/generated/core-api`.
 - [ ] Generate the example plugin client into its frontend package.
-- [ ] Make `app/core/api` inject authentication, request ID, abort signal, and normalized `ApiError` behavior around generated clients.
-- [ ] Add a resource-provider adapter test for list, find, create, update, delete, pagination, and 422 errors.
+- [x] Make `app/core/api` inject authentication, request ID, abort signal, and normalized `ApiError` behavior around generated clients.
+- [x] Add a resource-provider adapter test for list, find, create, update, delete, pagination, and 422 errors.
 - [ ] Aggregate Core and enabled-plugin documents for Swagger UI without modifying plugin source files.
-- [ ] Add CI validation that fails when the generated client is stale compared with the OpenAPI source.
+- [x] Add a local stale check that fails when the generated client is stale compared with the OpenAPI source; CI wiring remains.
 - [ ] Commit as `feat: generate openapi contracts and clients`.
 
 **Acceptance:** A frontend resource can use a generated service without writing a URL string, and the same operations appear in Swagger UI and the generated TypeScript client.

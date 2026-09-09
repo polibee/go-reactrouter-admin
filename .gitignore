@@ -18,7 +18,6 @@ runtime/logs/
 runtime/tmp/
 
 # Generated artifacts
-admin/generated/
 contracts/generated/
 *.sig
 

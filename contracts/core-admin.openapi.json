@@ -6,9 +6,17 @@
     "description": "Permission-protected Core resource CRUD and audit-log reads. This contract is the source for Swagger and generated clients."
   },
   "servers": [{ "url": "/api/v1/admin" }],
+  "x-permissions": {
+    "listUsers": "users.view", "getUser": "users.view", "createUser": "users.create", "updateUser": "users.update", "deleteUser": "users.delete",
+    "listRoles": "roles.view", "createRole": "roles.create", "updateRole": "roles.update", "deleteRole": "roles.delete",
+    "listPermissions": "permissions.view", "createPermission": "permissions.create", "updatePermission": "permissions.update", "deletePermission": "permissions.delete",
+    "listMenus": "menus.view", "createMenu": "menus.create", "updateMenu": "menus.update", "deleteMenu": "menus.delete",
+    "listSettings": "settings.view", "createSetting": "settings.create", "updateSetting": "settings.update", "deleteSetting": "settings.delete",
+    "listAuditLogs": "audit.view"
+  },
   "paths": {
     "/users": { "$ref": "#/components/pathItems/Users" },
-    "/users/{id}": { "$ref": "#/components/pathItems/User" },
+    "/users/{id}": { "$ref": "#/components/pathItems/UserWithGet" },
     "/roles": { "$ref": "#/components/pathItems/Roles" },
     "/roles/{id}": { "$ref": "#/components/pathItems/Role" },
     "/permissions": { "$ref": "#/components/pathItems/Permissions" },
@@ -31,6 +39,7 @@
       "Search": { "name": "search", "in": "query", "schema": { "type": "string" } }
     },
     "pathItems": {
+      "UserWithGet": { "get": { "$ref": "#/components/x-operations/getUser" }, "put": { "$ref": "#/components/x-operations/updateUser" }, "delete": { "$ref": "#/components/x-operations/deleteUser" } },
       "Users": { "get": { "$ref": "#/components/x-operations/listUsers" }, "post": { "$ref": "#/components/x-operations/createUser" } },
       "User": { "put": { "$ref": "#/components/x-operations/updateUser" }, "delete": { "$ref": "#/components/x-operations/deleteUser" } },
       "Roles": { "get": { "$ref": "#/components/x-operations/listRoles" }, "post": { "$ref": "#/components/x-operations/createRole" } },
@@ -44,6 +53,7 @@
       "AuditLogs": { "get": { "$ref": "#/components/x-operations/listAuditLogs" } }
     },
     "x-operations": {
+      "getUser": { "operationId": "getUser", "summary": "Read a Core user", "x-permission": "users.view", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/ID" }], "responses": { "200": { "$ref": "#/components/responses/UserResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" }, "404": { "$ref": "#/components/responses/ApiErrorResponse" } } },
       "listUsers": { "operationId": "listUsers", "summary": "List Core users", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/UserListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } },
       "createUser": { "operationId": "createUser", "summary": "Create a Core user", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/UserWriteRequest" }, "responses": { "201": { "$ref": "#/components/responses/UserResponse" }, "422": { "$ref": "#/components/responses/ApiErrorResponse" } } },
       "updateUser": { "operationId": "updateUser", "summary": "Update a Core user", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/ID" }], "requestBody": { "$ref": "#/components/requestBodies/UserWriteRequest" }, "responses": { "200": { "$ref": "#/components/responses/UserResponse" }, "404": { "$ref": "#/components/responses/ApiErrorResponse" }, "422": { "$ref": "#/components/responses/ApiErrorResponse" } } },

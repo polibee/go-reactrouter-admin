@@ -54,6 +54,19 @@ func (controller *CoreResourceController) Users(ctx contractshttp.Context) contr
 	return paginatedResponse(ctx, items, query, total)
 }
 
+func (controller *CoreResourceController) User(ctx contractshttp.Context) contractshttp.Response {
+	id, ok := parseResourceID(ctx.Request().Route("id"))
+	if !ok {
+		return notFoundFailure(ctx, "user")
+	}
+
+	var user models.User
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.User{}).Where("id", id).First(&user); err != nil || user.ID == 0 {
+		return notFoundFailure(ctx, "user")
+	}
+	return ctx.Response().Success().Json(contracts.Success(userListItem(user)))
+}
+
 func (controller *CoreResourceController) Roles(ctx contractshttp.Context) contractshttp.Response {
 	query := listQueryFromRequest(ctx)
 	roles := make([]models.Role, 0)
@@ -113,7 +126,9 @@ func (controller *CoreResourceController) Menus(ctx contractshttp.Context) contr
 	menus := make([]models.Menu, 0)
 	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Menu{}).Where("is_visible", true).OrderBy("sort").OrderBy("id")
 	if query.Search != "" {
-		databaseQuery = databaseQuery.WhereAny([]string{"key", "label"}, "like", "%"+query.Search+"%")
+		// Qualify `key` so MySQL does not parse it as an unquoted reserved word.
+		// The qualified form remains portable across the PostgreSQL and MySQL drivers.
+		databaseQuery = databaseQuery.WhereAny([]string{"menus.key", "menus.label"}, "like", "%"+query.Search+"%")
 	}
 
 	if err := databaseQuery.Get(&menus); err != nil {
@@ -153,9 +168,9 @@ func (controller *CoreResourceController) Menus(ctx contractshttp.Context) contr
 func (controller *CoreResourceController) Settings(ctx contractshttp.Context) contractshttp.Response {
 	query := listQueryFromRequest(ctx)
 	settings := make([]models.Setting, 0)
-	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Setting{}).OrderBy("key")
+	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Setting{}).OrderBy("settings.key")
 	if query.Search != "" {
-		databaseQuery = databaseQuery.Where("key", "like", "%"+query.Search+"%")
+		databaseQuery = databaseQuery.Where("settings.key", "like", "%"+query.Search+"%")
 	}
 
 	var total int64

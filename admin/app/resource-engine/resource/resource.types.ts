@@ -32,6 +32,8 @@ export interface ResourceListQuery {
   page?: number
   pageSize?: number
   search?: string
+  sort?: string
+  filter?: Record<string, string>
 }
 
 export interface ResourceListResult<T> {

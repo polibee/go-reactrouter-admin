@@ -5,10 +5,16 @@
     "version": "1.0.0"
   },
   "servers": [{ "url": "/api/v1" }],
+  "x-permissions": {
+    "login": "public",
+    "getCurrentUser": "auth.me",
+    "logout": "auth.logout"
+  },
   "paths": {
     "/auth/login": {
       "post": {
         "operationId": "login",
+        "x-permission": "public",
         "summary": "Authenticate a Core user",
         "requestBody": {
           "required": true,
@@ -25,6 +31,7 @@
     "/auth/me": {
       "get": {
         "operationId": "getCurrentUser",
+        "x-permission": "auth.me",
         "summary": "Read the current authenticated user",
         "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
         "responses": {
@@ -36,6 +43,7 @@
     "/auth/logout": {
       "post": {
         "operationId": "logout",
+        "x-permission": "auth.logout",
         "summary": "Invalidate the current authentication token",
         "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
         "responses": {

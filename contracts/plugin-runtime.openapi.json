@@ -4,11 +4,18 @@
     "title": "GoReactRouter Plugin Runtime API",
     "version": "1.0.0"
   },
+  "x-permissions": {
+    "getPluginDescriptor": "plugins.view",
+    "getPluginHealth": "plugins.view",
+    "getPluginRuntimeMetadata": "plugins.view",
+    "shutdownPlugin": "plugins.manage"
+  },
   "paths": {
     "/api/v1/admin/plugins/{pluginId}": {
       "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
       "get": {
         "operationId": "getPluginDescriptor",
+        "x-permission": "plugins.view",
         "summary": "Inspect an installed plugin descriptor",
         "responses": {
           "200": { "$ref": "#/components/responses/PluginDescriptorResponse" },
@@ -20,6 +27,7 @@
       "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
       "get": {
         "operationId": "getPluginHealth",
+        "x-permission": "plugins.view",
         "summary": "Check the supervised plugin process",
         "responses": {
           "200": { "$ref": "#/components/responses/HealthResponse" },
@@ -31,6 +39,7 @@
       "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
       "get": {
         "operationId": "getPluginRuntimeMetadata",
+        "x-permission": "plugins.view",
         "summary": "Read internal gateway metadata",
         "responses": {
           "200": { "$ref": "#/components/responses/PluginDescriptorResponse" },
@@ -42,6 +51,7 @@
       "parameters": [{ "$ref": "#/components/parameters/PluginId" }],
       "post": {
         "operationId": "shutdownPlugin",
+        "x-permission": "plugins.manage",
         "summary": "Request graceful plugin shutdown",
         "responses": {
           "202": { "$ref": "#/components/responses/HealthResponse" },

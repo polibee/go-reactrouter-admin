@@ -63,11 +63,16 @@ database suite against a dedicated database, set `DB_INTEGRATION=1` and run:
 
 ```text
 cd backend
-DB_CONNECTION=postgres DB_INTEGRATION=1 go test ./tests/integration -count=1
-DB_CONNECTION=mysql DB_INTEGRATION=1 go test ./tests/integration -count=1
+JWT_SECRET=local-test-secret DB_CONNECTION=postgres DB_INTEGRATION=1 go test ./tests/integration -count=1
+JWT_SECRET=local-test-secret DB_CONNECTION=mysql DB_INTEGRATION=1 go test ./tests/integration -count=1
 ```
 
 The normal `go test ./...` command skips this destructive integration suite.
+
+OpenAPI contracts are checked and used to generate the frontend client. Run
+`node tools/openapi-codegen/contract.test.mjs` from the repository root, or
+`pnpm run check:api` from `admin/`. The backend serves the same aggregated
+contract at `/openapi.json` and a lightweight documentation page at `/docs`.
 
 The backend health endpoints are `GET /` and `GET /health`. Main business modules are added under `backend/modules/` and `admin/app/modules/`; runtime-installable plugins use `plugins/` and `admin/app/core/extensions/`.
 

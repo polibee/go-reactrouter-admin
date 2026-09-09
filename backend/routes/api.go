@@ -32,6 +32,9 @@ func API() {
 	admin.Middleware(middleware.RequirePermission("users.view", resolver)).Get("/users", func(ctx http.Context) http.Response {
 		return resourceController.Users(ctx)
 	})
+	admin.Middleware(middleware.RequirePermission("users.view", resolver)).Get("/users/{id}", func(ctx http.Context) http.Response {
+		return resourceController.User(ctx)
+	})
 	admin.Middleware(middleware.RequirePermission("roles.view", resolver)).Get("/roles", func(ctx http.Context) http.Response {
 		return resourceController.Roles(ctx)
 	})
