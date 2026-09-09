@@ -15,6 +15,7 @@ func API() {
 	authController := controllers.NewAuthController()
 	resolver := middleware.NewDatabaseUserResolver()
 	resourceController := controllers.NewCoreResourceController(resolver)
+	pluginController := controllers.NewPluginController()
 
 	facades.Route().Prefix("/api/v1/auth").Post("/login", func(ctx http.Context) http.Response {
 		return authController.Login(ctx)
@@ -61,6 +62,12 @@ func API() {
 	})
 	admin.Middleware(middleware.RequirePermission("audit.view", resolver)).Get("/audit-logs", func(ctx http.Context) http.Response {
 		return resourceController.AuditLogs(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.view", resolver)).Get("/plugins", func(ctx http.Context) http.Response {
+		return pluginController.List(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("plugins.validate", resolver)).Post("/plugins/validate", func(ctx http.Context) http.Response {
+		return pluginController.Validate(ctx)
 	})
 
 	admin.Middleware(middleware.RequirePermission("users.create", resolver)).Post("/users", func(ctx http.Context) http.Response {

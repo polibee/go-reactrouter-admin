@@ -114,6 +114,12 @@
     },
     "/api/v1/admin/audit-logs": {
       "$ref": "#/components/pathItems/AuditLogs"
+    },
+    "/api/v1/admin/plugins": {
+      "$ref": "#/components/pathItems/Plugins"
+    },
+    "/api/v1/admin/plugins/validate": {
+      "$ref": "#/components/pathItems/PluginValidate"
     }
   },
   "components": {
@@ -622,6 +628,128 @@
           }
         }
       },
+      "PluginValidateRequest": {
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "PluginDependency": {
+        "type": "object",
+        "required": [
+          "id",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "PluginListItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "plugin_id",
+          "name",
+          "display_name",
+          "state",
+          "dependencies",
+          "health_status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "current_version": {
+            "type": "string"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginDependency"
+            }
+          },
+          "last_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "health_status": {
+            "type": "string"
+          }
+        }
+      },
+      "PluginVersionListItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "package_hash",
+          "state",
+          "health_status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "package_hash": {
+            "type": "string"
+          },
+          "signature_key_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "health_status": {
+            "type": "string"
+          }
+        }
+      },
+      "PluginValidationResult": {
+        "type": "object",
+        "required": [
+          "plugin",
+          "version"
+        ],
+        "properties": {
+          "plugin": {
+            "$ref": "#/components/schemas/PluginListItem"
+          },
+          "version": {
+            "$ref": "#/components/schemas/PluginVersionListItem"
+          }
+        }
+      },
       "PageMeta": {
         "type": "object",
         "required": [
@@ -755,6 +883,22 @@
           }
         ]
       },
+      "PluginListEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ListEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "items": {
+                  "$ref": "#/components/schemas/PluginListItem"
+                }
+              }
+            }
+          }
+        ]
+      },
       "ResourceEnvelope": {
         "type": "object",
         "required": [
@@ -873,6 +1017,16 @@
           }
         }
       },
+      "PluginListResponse": {
+        "description": "Paginated validated plugins",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PluginListEnvelope"
+            }
+          }
+        }
+      },
       "UserResponse": {
         "description": "User resource",
         "content": {
@@ -915,6 +1069,16 @@
       },
       "SettingResponse": {
         "description": "Setting resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResourceEnvelope"
+            }
+          }
+        }
+      },
+      "PluginValidationResponse": {
+        "description": "Validated plugin record",
         "content": {
           "application/json": {
             "schema": {
@@ -1103,6 +1267,16 @@
       "AuditLogs": {
         "get": {
           "$ref": "#/components/x-operations/listAuditLogs"
+        }
+      },
+      "Plugins": {
+        "get": {
+          "$ref": "#/components/x-operations/listPlugins"
+        }
+      },
+      "PluginValidate": {
+        "post": {
+          "$ref": "#/components/x-operations/validatePlugin"
         }
       }
     },
@@ -1868,6 +2042,73 @@
             "$ref": "#/components/responses/ApiErrorResponse"
           }
         }
+      },
+      "listPlugins": {
+        "operationId": "listPlugins",
+        "summary": "List validated plugins",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "$ref": "#/components/parameters/Search"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PluginListResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "validatePlugin": {
+        "operationId": "validatePlugin",
+        "summary": "Validate and record a plugin package",
+        "x-permission": "plugins.validate",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PluginValidateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/PluginValidationResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
       }
     },
     "requestBodies": {
@@ -1920,6 +2161,16 @@
             }
           }
         }
+      },
+      "PluginValidateRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PluginValidateRequest"
+            }
+          }
+        }
       }
     }
   },
@@ -1952,6 +2203,8 @@
     "createSetting": "settings.create",
     "updateSetting": "settings.update",
     "deleteSetting": "settings.delete",
-    "listAuditLogs": "audit.view"
+    "listAuditLogs": "audit.view",
+    "listPlugins": "plugins.view",
+    "validatePlugin": "plugins.validate"
   }
 }

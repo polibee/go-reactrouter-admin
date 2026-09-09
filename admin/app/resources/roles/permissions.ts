@@ -156,6 +156,25 @@ export const SYSTEM_PERMISSION_GROUPS = [
       },
     ],
   },
+  {
+    module: 'plugins',
+    title: 'resources.permissions.groups.plugins',
+    description: 'resources.permissions.groups.pluginsDescription',
+    permissions: [
+      {
+        code: 'plugins.view',
+        name: 'resources.permissions.items.pluginsView',
+        description: 'resources.permissions.items.pluginsViewDescription',
+        module: 'plugins',
+      },
+      {
+        code: 'plugins.validate',
+        name: 'resources.permissions.items.pluginsValidate',
+        description: 'resources.permissions.items.pluginsValidateDescription',
+        module: 'plugins',
+      },
+    ],
+  },
 ] as const
 
 export type SystemPermissionGroupTitleKey =

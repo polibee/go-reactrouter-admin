@@ -57,6 +57,11 @@
     "permissions": { "type": "string", "minLength": 1 },
     "menus": { "type": "string", "minLength": 1 },
     "openapi": { "type": "string", "minLength": 1 },
-    "signature": { "type": "string", "minLength": 1 }
+    "signature": { "type": "string", "minLength": 1 },
+    "platforms": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9._-]+/[a-z0-9._-]+$" },
+      "uniqueItems": true
+    }
   }
 }

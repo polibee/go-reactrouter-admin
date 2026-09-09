@@ -191,14 +191,14 @@ The implementation should be executed as several independently reviewable sub-pr
 - `GET /api/v1/admin/plugins`
 - `POST /api/v1/admin/plugins/validate`
 
-- [ ] Write validator tests for valid package, missing manifest, invalid JSON, path traversal, unsupported platform, hash mismatch, invalid signature, incompatible core version, and missing dependency.
-- [ ] Implement archive extraction into a temporary directory with normalized paths and no executable permission before validation passes.
-- [ ] Implement Manifest schema validation and semantic-version checks.
-- [ ] Implement package hash calculation and signature verification against the configured trust store.
-- [ ] Persist a plugin version record only after validation passes.
-- [ ] Expose a read-only plugin list endpoint with state, version, dependencies, last error, and health status.
-- [ ] Add CLI output that reports every validation failure with a stable machine-readable code.
-- [ ] Run security-focused package tests and malformed archive tests.
+- [x] Write validator tests for valid package, missing manifest, invalid JSON, path traversal, unsupported platform, hash mismatch, invalid signature, incompatible core version, and missing dependency.
+- [x] Implement archive extraction into a temporary directory with normalized paths and no executable permission before validation passes.
+- [x] Implement Manifest schema validation and semantic-version checks.
+- [x] Implement package hash calculation and signature verification against the configured trust store.
+- [x] Persist a plugin version record only after validation passes.
+- [x] Expose a read-only plugin list endpoint with state, version, dependencies, last error, and health status.
+- [x] Add CLI output that reports every validation failure with a stable machine-readable code.
+- [x] Run security-focused package tests and malformed archive tests.
 - [ ] Commit as `feat: validate runtime plugin packages`.
 
 **Acceptance:** A malformed or unsigned plugin cannot be installed or executed, and an administrator can inspect validated package metadata through the backend API.

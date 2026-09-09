@@ -12,7 +12,7 @@
     "listPermissions": "permissions.view", "getPermission": "permissions.view", "createPermission": "permissions.create", "updatePermission": "permissions.update", "deletePermission": "permissions.delete",
     "listMenus": "menus.view", "getMenu": "menus.view", "createMenu": "menus.create", "updateMenu": "menus.update", "deleteMenu": "menus.delete",
     "listSettings": "settings.view", "getSetting": "settings.view", "createSetting": "settings.create", "updateSetting": "settings.update", "deleteSetting": "settings.delete",
-    "listAuditLogs": "audit.view"
+    "listAuditLogs": "audit.view", "listPlugins": "plugins.view", "validatePlugin": "plugins.validate"
   },
   "paths": {
     "/users": { "$ref": "#/components/pathItems/Users" },
@@ -25,7 +25,9 @@
     "/menus/{id}": { "$ref": "#/components/pathItems/MenuWithGet" },
     "/settings": { "$ref": "#/components/pathItems/Settings" },
     "/settings/{id}": { "$ref": "#/components/pathItems/SettingWithGet" },
-    "/audit-logs": { "$ref": "#/components/pathItems/AuditLogs" }
+    "/audit-logs": { "$ref": "#/components/pathItems/AuditLogs" },
+    "/plugins": { "$ref": "#/components/pathItems/Plugins" },
+    "/plugins/validate": { "$ref": "#/components/pathItems/PluginValidate" }
   },
   "components": {
     "securitySchemes": {
@@ -54,7 +56,9 @@
       "Menu": { "put": { "$ref": "#/components/x-operations/updateMenu" }, "delete": { "$ref": "#/components/x-operations/deleteMenu" } },
       "Settings": { "get": { "$ref": "#/components/x-operations/listSettings" }, "post": { "$ref": "#/components/x-operations/createSetting" } },
       "Setting": { "put": { "$ref": "#/components/x-operations/updateSetting" }, "delete": { "$ref": "#/components/x-operations/deleteSetting" } },
-      "AuditLogs": { "get": { "$ref": "#/components/x-operations/listAuditLogs" } }
+      "AuditLogs": { "get": { "$ref": "#/components/x-operations/listAuditLogs" } },
+      "Plugins": { "get": { "$ref": "#/components/x-operations/listPlugins" } },
+      "PluginValidate": { "post": { "$ref": "#/components/x-operations/validatePlugin" } }
     },
     "x-operations": {
       "getUser": { "operationId": "getUser", "summary": "Read a Core user", "x-permission": "users.view", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/ID" }], "responses": { "200": { "$ref": "#/components/responses/UserResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" }, "404": { "$ref": "#/components/responses/ApiErrorResponse" } } },
@@ -82,7 +86,9 @@
       "createSetting": { "operationId": "createSetting", "summary": "Create a Core setting", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/SettingWriteRequest" }, "responses": { "201": { "$ref": "#/components/responses/SettingResponse" }, "422": { "$ref": "#/components/responses/ApiErrorResponse" } } },
       "updateSetting": { "operationId": "updateSetting", "summary": "Update a Core setting", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/ID" }], "requestBody": { "$ref": "#/components/requestBodies/SettingWriteRequest" }, "responses": { "200": { "$ref": "#/components/responses/SettingResponse" }, "404": { "$ref": "#/components/responses/ApiErrorResponse" }, "422": { "$ref": "#/components/responses/ApiErrorResponse" } } },
       "deleteSetting": { "operationId": "deleteSetting", "summary": "Delete a Core setting", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/ID" }], "responses": { "204": { "$ref": "#/components/responses/NoContentResponse" }, "404": { "$ref": "#/components/responses/ApiErrorResponse" } } },
-      "listAuditLogs": { "operationId": "listAuditLogs", "summary": "List audit logs", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/AuditLogListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } }
+      "listAuditLogs": { "operationId": "listAuditLogs", "summary": "List audit logs", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/AuditLogListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } },
+      "listPlugins": { "operationId": "listPlugins", "summary": "List validated plugins", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }, { "$ref": "#/components/parameters/Search" }], "responses": { "200": { "$ref": "#/components/responses/PluginListResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" } } },
+      "validatePlugin": { "operationId": "validatePlugin", "summary": "Validate and record a plugin package", "x-permission": "plugins.validate", "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/PluginValidateRequest" }, "responses": { "201": { "$ref": "#/components/responses/PluginValidationResponse" }, "401": { "$ref": "#/components/responses/ApiErrorResponse" }, "403": { "$ref": "#/components/responses/ApiErrorResponse" }, "422": { "$ref": "#/components/responses/ApiErrorResponse" }, "500": { "$ref": "#/components/responses/ApiErrorResponse" } } }
     },
     "requestBodies": {
       "UserWriteRequest": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserWriteRequest" } } } },
@@ -90,6 +96,7 @@
       "PermissionWriteRequest": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionWriteRequest" } } } },
       "MenuWriteRequest": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MenuWriteRequest" } } } },
       "SettingWriteRequest": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SettingWriteRequest" } } } }
+      ,"PluginValidateRequest": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PluginValidateRequest" } } } }
     },
     "schemas": {
       "UserWriteRequest": { "type": "object", "required": ["name", "email"], "properties": { "name": { "type": "string", "minLength": 1 }, "email": { "type": "string", "format": "email" }, "password": { "type": "string", "minLength": 1, "writeOnly": true }, "status": { "type": "string", "enum": ["active", "disabled"] }, "is_active": { "type": "boolean" }, "role_ids": { "type": "array", "items": { "type": "integer", "minimum": 1 } } } },
@@ -103,6 +110,11 @@
       "MenuListItem": { "type": "object", "required": ["id", "key", "label", "sort", "is_visible"], "properties": { "id": { "type": "string" }, "key": { "type": "string" }, "label": { "type": "string" }, "path": { "type": ["string", "null"] }, "icon": { "type": ["string", "null"] }, "permission": { "type": ["string", "null"] }, "parent_id": { "type": ["string", "null"] }, "sort": { "type": "integer" }, "is_visible": { "type": "boolean" }, "meta": { "type": ["string", "null"] } } },
       "SettingListItem": { "type": "object", "required": ["id", "key", "value", "type", "is_public"], "properties": { "id": { "type": "string" }, "key": { "type": "string" }, "value": { "type": "string" }, "type": { "type": "string" }, "is_public": { "type": "boolean" } } },
       "AuditLogListItem": { "type": "object", "required": ["id", "action", "resource_type"], "properties": { "id": { "type": "string" }, "user_id": { "type": ["string", "null"] }, "action": { "type": "string" }, "resource_type": { "type": "string" }, "resource_id": { "type": ["string", "null"] }, "request_id": { "type": ["string", "null"] }, "before_data": { "type": ["string", "null"] }, "after_data": { "type": ["string", "null"] } } },
+      "PluginValidateRequest": { "type": "object", "required": ["path"], "properties": { "path": { "type": "string", "minLength": 1 } } },
+      "PluginDependency": { "type": "object", "required": ["id", "version"], "properties": { "id": { "type": "string" }, "version": { "type": "string" } } },
+      "PluginListItem": { "type": "object", "required": ["id", "plugin_id", "name", "display_name", "state", "dependencies", "health_status"], "properties": { "id": { "type": "string" }, "plugin_id": { "type": "string" }, "name": { "type": "string" }, "display_name": { "type": "string" }, "state": { "type": "string" }, "current_version": { "type": "string" }, "dependencies": { "type": "array", "items": { "$ref": "#/components/schemas/PluginDependency" } }, "last_error": { "type": ["string", "null"] }, "health_status": { "type": "string" } } },
+      "PluginVersionListItem": { "type": "object", "required": ["id", "version", "package_hash", "state", "health_status"], "properties": { "id": { "type": "string" }, "version": { "type": "string" }, "package_hash": { "type": "string" }, "signature_key_id": { "type": ["string", "null"] }, "state": { "type": "string" }, "health_status": { "type": "string" } } },
+      "PluginValidationResult": { "type": "object", "required": ["plugin", "version"], "properties": { "plugin": { "$ref": "#/components/schemas/PluginListItem" }, "version": { "$ref": "#/components/schemas/PluginVersionListItem" } } },
       "PageMeta": { "type": "object", "required": ["page", "pageSize", "total"], "properties": { "page": { "type": "integer" }, "pageSize": { "type": "integer" }, "total": { "type": "integer" } } },
       "ListEnvelope": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array" }, "meta": { "$ref": "#/components/schemas/PageMeta" }, "requestId": { "type": "string" } } },
       "UserListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/UserListItem" } } } }] },
@@ -111,6 +123,7 @@
       "MenuListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/MenuListItem" } } } }] },
       "SettingListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/SettingListItem" } } } }] },
       "AuditLogListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/AuditLogListItem" } } } }] },
+      "PluginListEnvelope": { "allOf": [{ "$ref": "#/components/schemas/ListEnvelope" }, { "properties": { "data": { "items": { "$ref": "#/components/schemas/PluginListItem" } } } }] },
       "ResourceEnvelope": { "type": "object", "required": ["data"], "properties": { "data": { "type": "object" }, "requestId": { "type": "string" } } },
       "ApiError": { "type": "object", "required": ["error"], "properties": { "error": { "type": "object", "required": ["code", "message"], "properties": { "code": { "type": "string" }, "message": { "type": "string" }, "fields": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } } } }, "requestId": { "type": "string" } } }
     },
@@ -121,11 +134,13 @@
       "MenuListResponse": { "description": "Paginated authorized menus", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MenuListEnvelope" } } } },
       "SettingListResponse": { "description": "Paginated settings", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SettingListEnvelope" } } } },
       "AuditLogListResponse": { "description": "Paginated audit logs", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuditLogListEnvelope" } } } },
+      "PluginListResponse": { "description": "Paginated validated plugins", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PluginListEnvelope" } } } },
       "UserResponse": { "description": "User resource", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceEnvelope" } } } },
       "RoleResponse": { "description": "Role resource", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceEnvelope" } } } },
       "PermissionResponse": { "description": "Permission resource", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceEnvelope" } } } },
       "MenuResponse": { "description": "Menu resource", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceEnvelope" } } } },
       "SettingResponse": { "description": "Setting resource", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceEnvelope" } } } },
+      "PluginValidationResponse": { "description": "Validated plugin record", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceEnvelope" } } } },
       "NoContentResponse": { "description": "Resource deleted" },
       "ApiErrorResponse": { "description": "API error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
     }

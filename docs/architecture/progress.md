@@ -4,7 +4,7 @@
 
 ## 当前结论
 
-项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证，并完成 Core 资源到生成客户端的第一轮切换。主业务仍采用编译进主应用的模块化方式；运行时插件、插件安装器和独立插件进程仍未完成。
+项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证，并完成 Core 资源到生成客户端的第一轮切换；当前进入 Stage 3 插件包校验和状态持久化。主业务仍采用编译进主应用的模块化方式；插件独立进程和网关仍未开始。
 
 ## 已完成
 
@@ -36,11 +36,14 @@
 - 角色、权限、菜单、设置资源已加入生成客户端 Provider 适配层；角色列表返回权限代码，便于角色编辑复用统一合同。
 - 用户、角色、权限、菜单、设置已补齐生成客户端所需的详情读取 API，并纳入权限保护和 OpenAPI 合同。
 - Core 资源集成测试已覆盖五类资源的详情读取；PostgreSQL 和 MySQL 专用数据库验证均通过。
+- Stage 3 已加入安全插件 ZIP 校验器：归档大小、文件数量、解压大小、路径穿越、符号链接、manifest、平台、Core/依赖版本和 Ed25519 签名均在执行前校验。
+- Stage 3 已加入 `plugins`、`plugin_versions`、`plugin_processes` 表和 Goravel 模型；只有校验成功后才记录插件版本。
+- Stage 3 已加入受权限保护的插件列表和校验 API，并同步到 OpenAPI/生成客户端；独立 `tools/plugin-validator` CLI 输出稳定机器可读错误码。
 
 ## 未完成
 
 - Stage 2：Core 资源的生成客户端接入已完成；菜单当前仍是“可见且有权限的导航数据”接口，后续如需管理不可见菜单，应单独增加管理目录接口，不能复用导航过滤接口。
-- Stage 3：插件包校验、签名、依赖和持久化模型。
+- Stage 3：插件验证记录的后台管理页面、上传安装工作流和完整真实数据库插件生命周期测试仍待完成。
 - Stage 4：插件独立进程、健康检查、网关和生命周期控制。
 - Stage 5：插件 OpenAPI 客户端生成、启用插件合同聚合、CI 工作流和完整 TypeScript 编译验证仍待完成。
 - Stage 6–9：前端插件页面宿主、安装/启停/升级/卸载 UI、安全加固和发布流程。
@@ -55,5 +58,7 @@
 - `node tools/openapi-codegen/contract.test.mjs` 通过，并二次执行 stale 检查。
 - `pnpm run check:api` 通过，生成客户端与 OpenAPI 合同保持同步。
 - `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过；PostgreSQL 和 MySQL `DB_INTEGRATION=1` 集成测试均通过。
+- `backend/internal/pluginhost` 校验器测试覆盖签名包、manifest 缺失、路径穿越、平台不兼容、签名错误、Core 不兼容、依赖缺失和文件大小限制。
+- `tools/plugin-validator` 独立 CLI 测试通过；错误输出包含稳定 `code` 字段。
 - 默认 Go 测试包含集成测试包，但因未设置 `DB_INTEGRATION=1` 会安全跳过真实数据库操作。
 - ReactRouterAdmin 在 `/mnt/d` Windows 挂载目录启动开发服务时，首次 SSR 请求出现长时间阻塞；进程处于文件 I/O 等待状态。这是 WSL 跨文件系统开发目录的环境限制，需迁移到 WSL 原生目录或使用构建产物部署后再做浏览器 E2E。

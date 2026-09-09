@@ -46,6 +46,7 @@ func (s *CoreResourcesTestSuite) seedAdministrator() {
 		"permissions.view", "permissions.create", "permissions.update", "permissions.delete",
 		"menus.view", "menus.create", "menus.update", "menus.delete",
 		"settings.view", "settings.create", "settings.update", "settings.delete",
+		"plugins.view", "plugins.validate",
 		"audit.view",
 	}
 	permissions := make([]models.Permission, 0, len(permissionCodes))
@@ -88,6 +89,17 @@ func (s *CoreResourcesTestSuite) login() contractshttp.Request {
 
 func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	request := s.login()
+
+	currentVersion := "1.0.0"
+	plugin := models.Plugin{PluginID: "integration.plugin", Name: "integration", DisplayName: "Integration plugin", State: "installed", CurrentVersion: &currentVersion, HealthStatus: "unknown"}
+	s.Require().NoError(facades.Orm().Query().Create(&plugin))
+	s.Require().NoError(facades.Orm().Query().Create(&models.PluginVersion{
+		PluginID: plugin.ID, Version: currentVersion, PackageHash: "sha256:integration", InstallRoot: "/tmp/integration-plugin",
+		ManifestJSON: "{}", Dependencies: "[]", State: "installed", HealthStatus: "unknown",
+	}))
+	pluginList, err := request.Get("/api/v1/admin/plugins")
+	s.Require().NoError(err)
+	pluginList.AssertOk()
 
 	permissionResponse, err := request.Post("/api/v1/admin/permissions", bytes.NewReader(jsonBytes(map[string]any{
 		"code":         "integration.read",

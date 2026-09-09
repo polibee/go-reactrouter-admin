@@ -102,6 +102,22 @@ function schemaInterface(document, name, schema) {
   return `export interface ${name} {\n${properties.join('\n')}\n}\n`
 }
 
+function collectSchemaRefs(document, rawSchema, usedSchemas, visited = new Set()) {
+  if (!rawSchema) return
+  const refName = schemaName(rawSchema)
+  if (refName) {
+    if (visited.has(refName)) return
+    visited.add(refName)
+    usedSchemas.add(refName)
+    collectSchemaRefs(document, document.components?.schemas?.[refName], usedSchemas, visited)
+    return
+  }
+  const schema = resolveDeep(document, rawSchema) ?? {}
+  for (const property of Object.values(schema.properties ?? {})) collectSchemaRefs(document, property, usedSchemas, visited)
+  collectSchemaRefs(document, schema.items, usedSchemas, visited)
+  for (const part of [...(schema.allOf ?? []), ...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]) collectSchemaRefs(document, part, usedSchemas, visited)
+}
+
 function requestBodyType(document, operation) {
   const requestBody = resolveDeep(document, operation.requestBody)
   return schemaName(requestBody?.content?.['application/json']?.schema) ?? 'Record<string, unknown>'
@@ -114,6 +130,7 @@ function responseType(operation) {
   }
   if (operation.operationId === 'login' || operation.operationId === 'getCurrentUser') return 'AuthUser'
   if (operation.operationId === 'logout' || operation.operationId?.startsWith('delete')) return 'null'
+  if (operation.operationId?.startsWith('validate')) return 'PluginValidationResult'
   const resource = operation.operationId?.replace(/^(create|update|get)/, '')
   return resource ? `${resource}ListItem` : 'unknown'
 }
@@ -150,6 +167,11 @@ function buildClient(documents, operations) {
     `function mergeOptions(options: RequestOptions | undefined, params: CoreListQuery | undefined): RequestOptions | undefined {\n  if (!params) return options\n  const { filter, ...query } = params\n  const filterQuery = Object.fromEntries(Object.entries(filter ?? {}).map(([key, value]) => [\`filter[\${key}]\`, value]))\n  return { ...options, query: { ...options?.query, ...query, ...filterQuery } }\n}\n\n`,
   ]
   const schemas = new Map()
+  for (const { document } of documents) {
+    for (const name of [...usedSchemas]) {
+      if (document.components?.schemas?.[name]) collectSchemaRefs(document, { $ref: `#/components/schemas/${name}` }, usedSchemas)
+    }
+  }
   for (const { document } of documents) {
     for (const name of usedSchemas) {
       if (!schemas.has(name) && document.components?.schemas?.[name]) schemas.set(name, schemaInterface(document, name, document.components.schemas[name]))

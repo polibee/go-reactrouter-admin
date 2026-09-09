@@ -87,6 +87,46 @@ export interface PermissionWriteRequest {
 }
 
 
+export interface PluginDependency {
+  id: string
+  version: string
+}
+
+
+export interface PluginListItem {
+  id: string
+  plugin_id: string
+  name: string
+  display_name: string
+  state: string
+  current_version?: string
+  dependencies: Array<PluginDependency>
+  last_error?: string | null
+  health_status: string
+}
+
+
+export interface PluginValidateRequest {
+  path: string
+}
+
+
+export interface PluginValidationResult {
+  plugin: PluginListItem
+  version: PluginVersionListItem
+}
+
+
+export interface PluginVersionListItem {
+  id: string
+  version: string
+  package_hash: string
+  signature_key_id?: string | null
+  state: string
+  health_status: string
+}
+
+
 export interface RoleListItem {
   id: string
   name: string
@@ -218,6 +258,10 @@ export function listPermissions(params?: CoreListQuery, options?: RequestOptions
   return request<PermissionListItem[]>('GET', `/api/v1/admin/permissions`, undefined, mergeOptions(options, params))
 }
 
+export function listPlugins(params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<PluginListItem[]>> {
+  return request<PluginListItem[]>('GET', `/api/v1/admin/plugins`, undefined, mergeOptions(options, params))
+}
+
 export function listRoles(params?: CoreListQuery, options?: RequestOptions): Promise<ApiResponse<RoleListItem[]>> {
   return request<RoleListItem[]>('GET', `/api/v1/admin/roles`, undefined, mergeOptions(options, params))
 }
@@ -256,4 +300,8 @@ export function updateSetting(id: string, body: SettingWriteRequest, options?: R
 
 export function updateUser(id: string, body: UserWriteRequest, options?: RequestOptions): Promise<ApiResponse<UserListItem>> {
   return request<UserListItem>('PUT', `/api/v1/admin/users/${id}`, body, options)
+}
+
+export function validatePlugin(body: PluginValidateRequest, options?: RequestOptions): Promise<ApiResponse<PluginValidationResult>> {
+  return request<PluginValidationResult>('POST', `/api/v1/admin/plugins/validate`, body, options)
 }

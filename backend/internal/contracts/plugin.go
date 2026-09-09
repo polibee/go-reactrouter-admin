@@ -70,6 +70,7 @@ type PluginManifest struct {
 	Menus        string             `json:"menus"`
 	OpenAPI      string             `json:"openapi"`
 	Signature    string             `json:"signature,omitempty"`
+	Platforms    []string           `json:"platforms,omitempty"`
 }
 
 var (

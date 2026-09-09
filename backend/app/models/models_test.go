@@ -17,6 +17,9 @@ func TestCoreModelsUseStableTableNames(t *testing.T) {
 		{name: "menus", table: "menus", got: (Menu{}).TableName()},
 		{name: "settings", table: "settings", got: (Setting{}).TableName()},
 		{name: "audit logs", table: "audit_logs", got: (AuditLog{}).TableName()},
+		{name: "plugins", table: "plugins", got: (Plugin{}).TableName()},
+		{name: "plugin versions", table: "plugin_versions", got: (PluginVersion{}).TableName()},
+		{name: "plugin processes", table: "plugin_processes", got: (PluginProcess{}).TableName()},
 	}
 
 	for _, tt := range tests {
