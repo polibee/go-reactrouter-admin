@@ -70,7 +70,7 @@ func (controller *CoreResourceController) User(ctx contractshttp.Context) contra
 func (controller *CoreResourceController) Roles(ctx contractshttp.Context) contractshttp.Response {
 	query := listQueryFromRequest(ctx)
 	roles := make([]models.Role, 0)
-	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Role{}).OrderByDesc("id")
+	databaseQuery := facades.Orm().WithContext(ctx).Query().Model(&models.Role{}).With("Permissions").OrderByDesc("id")
 	if query.Search != "" {
 		databaseQuery = databaseQuery.WhereAny([]string{"name", "display_name"}, "like", "%"+query.Search+"%")
 	}
@@ -82,16 +82,23 @@ func (controller *CoreResourceController) Roles(ctx contractshttp.Context) contr
 
 	items := make([]RoleListItem, 0, len(roles))
 	for _, role := range roles {
-		items = append(items, RoleListItem{
-			ID:          strconv.FormatUint(uint64(role.ID), 10),
-			Name:        role.Name,
-			DisplayName: role.DisplayName,
-			Description: role.Description,
-			IsSystem:    role.IsSystem,
-		})
+		items = append(items, roleListItem(role))
 	}
 
 	return paginatedResponse(ctx, items, query, total)
+}
+
+func (controller *CoreResourceController) Role(ctx contractshttp.Context) contractshttp.Response {
+	id, ok := parseResourceID(ctx.Request().Route("id"))
+	if !ok {
+		return notFoundFailure(ctx, "role")
+	}
+
+	var role models.Role
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Role{}).With("Permissions").Where("id", id).First(&role); err != nil || role.ID == 0 {
+		return notFoundFailure(ctx, "role")
+	}
+	return ctx.Response().Success().Json(contracts.Success(roleListItem(role)))
 }
 
 func (controller *CoreResourceController) Permissions(ctx contractshttp.Context) contractshttp.Response {
@@ -119,6 +126,19 @@ func (controller *CoreResourceController) Permissions(ctx contractshttp.Context)
 	}
 
 	return paginatedResponse(ctx, items, query, total)
+}
+
+func (controller *CoreResourceController) Permission(ctx contractshttp.Context) contractshttp.Response {
+	id, ok := parseResourceID(ctx.Request().Route("id"))
+	if !ok {
+		return notFoundFailure(ctx, "permission")
+	}
+
+	var permission models.Permission
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Permission{}).Where("id", id).First(&permission); err != nil || permission.ID == 0 {
+		return notFoundFailure(ctx, "permission")
+	}
+	return ctx.Response().Success().Json(contracts.Success(permissionListItem(permission)))
 }
 
 func (controller *CoreResourceController) Menus(ctx contractshttp.Context) contractshttp.Response {
@@ -165,6 +185,19 @@ func (controller *CoreResourceController) Menus(ctx contractshttp.Context) contr
 	return paginatedResponse(ctx, pageItems, query, total)
 }
 
+func (controller *CoreResourceController) Menu(ctx contractshttp.Context) contractshttp.Response {
+	id, ok := parseResourceID(ctx.Request().Route("id"))
+	if !ok {
+		return notFoundFailure(ctx, "menu")
+	}
+
+	var menu models.Menu
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Menu{}).Where("id", id).First(&menu); err != nil || menu.ID == 0 {
+		return notFoundFailure(ctx, "menu")
+	}
+	return ctx.Response().Success().Json(contracts.Success(menuListItem(menu)))
+}
+
 func (controller *CoreResourceController) Settings(ctx contractshttp.Context) contractshttp.Response {
 	query := listQueryFromRequest(ctx)
 	settings := make([]models.Setting, 0)
@@ -190,6 +223,19 @@ func (controller *CoreResourceController) Settings(ctx contractshttp.Context) co
 	}
 
 	return paginatedResponse(ctx, items, query, total)
+}
+
+func (controller *CoreResourceController) Setting(ctx contractshttp.Context) contractshttp.Response {
+	id, ok := parseResourceID(ctx.Request().Route("id"))
+	if !ok {
+		return notFoundFailure(ctx, "setting")
+	}
+
+	var setting models.Setting
+	if err := facades.Orm().WithContext(ctx).Query().Model(&models.Setting{}).Where("id", id).First(&setting); err != nil || setting.ID == 0 {
+		return notFoundFailure(ctx, "setting")
+	}
+	return ctx.Response().Success().Json(contracts.Success(settingListItem(setting)))
 }
 
 func (controller *CoreResourceController) AuditLogs(ctx contractshttp.Context) contractshttp.Response {

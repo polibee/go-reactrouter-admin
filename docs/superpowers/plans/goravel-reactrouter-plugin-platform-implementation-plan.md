@@ -154,13 +154,13 @@ The implementation should be executed as several independently reviewable sub-pr
 - [x] Implement permission-protected paginated read endpoints for users, roles, permissions, menus, settings, and audit logs.
 - [x] Implement menu filtering so the server returns only visible and authorized menu items.
 - [x] Implement audit logs for administrative resource mutations; login/logout audit events remain a follow-up hardening item.
-- [ ] Replace mock users and roles providers with generated-client adapters after the OpenAPI pipeline is available; users are now switched, roles remain.
+- [x] Replace mock users and roles providers with generated-client adapters after the OpenAPI pipeline is available; permissions, menus, and settings now also have shared generated-client adapters.
 - [x] Run backend migrations on clean MySQL and PostgreSQL test databases and execute all Core API tests; the opt-in integration suite is now present.
 - [ ] Commit as `feat: add goravel core admin runtime`.
 
 **Acceptance:** The frontend can log in, fetch the current user, render server-filtered navigation, manage users and roles, and receive consistent 401/403/422 responses from Goravel.
 
-**Progress note (2026-09-08):** The Core persistence foundation, framework-independent authorization rules, permission middleware seam, and frontend API-backed auth adapter are implemented and tested. The HTTP controllers, token/session completion, role/permission loading, server-filtered menu API, and database-backed Core API tests remain part of this stage.
+**Progress note (2026-09-09):** Core persistence, authorization, JWT session handling, server-filtered menus, database-backed Core API tests, OpenAPI generation, and generated-client adapters for users, roles, permissions, menus, and settings are implemented. The menu adapter intentionally consumes the navigation-filtered endpoint; a separate management catalog endpoint is still required before editing hidden or unauthorized menu entries.
 
 ## Stage 3: Plugin Manager Data Model and Package Validation
 

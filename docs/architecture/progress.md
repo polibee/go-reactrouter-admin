@@ -4,7 +4,7 @@
 
 ## 当前结论
 
-项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证，并进入 Stage 5 OpenAPI 生成流水线的第一轮实现。主业务仍采用编译进主应用的模块化方式；运行时插件、插件安装器和独立插件进程仍未完成。
+项目已经完成 Stage 2 Core 资源写入和 MySQL/PostgreSQL 真实验证，并完成 Core 资源到生成客户端的第一轮切换。主业务仍采用编译进主应用的模块化方式；运行时插件、插件安装器和独立插件进程仍未完成。
 
 ## 已完成
 
@@ -33,10 +33,13 @@
 - OpenAPI 合同已加入操作权限元数据；`tools/openapi-codegen` 已实现合同校验、客户端生成、聚合文档生成和 stale 检查。
 - 后端已通过 `/openapi.json` 和 `/docs` 提供聚合合同；前端 `admin/generated/core-api` 已生成统一 Core client。
 - Resource Engine 已加入通用远程 Provider；用户资源已从前端 mock 切换为生成客户端，并补齐用户详情读取接口。
+- 角色、权限、菜单、设置资源已加入生成客户端 Provider 适配层；角色列表返回权限代码，便于角色编辑复用统一合同。
+- 用户、角色、权限、菜单、设置已补齐生成客户端所需的详情读取 API，并纳入权限保护和 OpenAPI 合同。
+- Core 资源集成测试已覆盖五类资源的详情读取；PostgreSQL 和 MySQL 专用数据库验证均通过。
 
 ## 未完成
 
-- Stage 2：角色资源仍需从 mock provider 切换为生成客户端；权限、菜单、设置、审计的资源页面仍需补齐真实 Provider。
+- Stage 2：Core 资源的生成客户端接入已完成；菜单当前仍是“可见且有权限的导航数据”接口，后续如需管理不可见菜单，应单独增加管理目录接口，不能复用导航过滤接口。
 - Stage 3：插件包校验、签名、依赖和持久化模型。
 - Stage 4：插件独立进程、健康检查、网关和生命周期控制。
 - Stage 5：插件 OpenAPI 客户端生成、启用插件合同聚合、CI 工作流和完整 TypeScript 编译验证仍待完成。
@@ -45,11 +48,12 @@
 ## 验证状态
 
 - `backend`: `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过。
-- `admin`: 本轮 `pnpm test:unit` 通过，10 个测试通过。
+- `admin`: 本轮 `pnpm test:unit` 通过，13 个测试通过。
 - `admin`: Biome lint 无新增错误，保留原资源引擎的 4 条 warning。
-- `admin`: `pnpm typecheck` 和 `pnpm build` 在 `/mnt/d` 的 Windows 挂载目录进入长时间文件 I/O，未将其标记为通过；需在 WSL 原生目录继续验证。
+- `admin`: 已在 WSL 原生临时目录完成 `pnpm typecheck` 和 `pnpm build`；`/mnt/d` Windows 挂载目录仍不适合执行这两项耗时文件 I/O 操作。
 - 开发服务：`pnpm dev --host 0.0.0.0` 最终监听 `5173`，但 `/` 请求在 `/mnt/d` 下超过 20 秒无响应；开发前端应复制到 WSL 原生目录后运行。
 - `node tools/openapi-codegen/contract.test.mjs` 通过，并二次执行 stale 检查。
+- `pnpm run check:api` 通过，生成客户端与 OpenAPI 合同保持同步。
 - `GOCACHE=/tmp/go-reactrouter-build go test ./...` 通过；PostgreSQL 和 MySQL `DB_INTEGRATION=1` 集成测试均通过。
 - 默认 Go 测试包含集成测试包，但因未设置 `DB_INTEGRATION=1` 会安全跳过真实数据库操作。
 - ReactRouterAdmin 在 `/mnt/d` Windows 挂载目录启动开发服务时，首次 SSR 请求出现长时间阻塞；进程处于文件 I/O 等待状态。这是 WSL 跨文件系统开发目录的环境限制，需迁移到 WSL 原生目录或使用构建产物部署后再做浏览器 E2E。

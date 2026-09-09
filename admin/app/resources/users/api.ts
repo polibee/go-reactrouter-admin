@@ -6,7 +6,7 @@ import {
   listUsers,
   updateUser,
   type UserWriteRequest,
-} from '~/generated/core-api'
+} from '@generated/core-api'
 import { createRemoteResourceProvider } from '~/resource-engine/resource'
 import type { User } from './types'
 

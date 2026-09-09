@@ -15,7 +15,11 @@ func userListItem(user models.User) UserListItem {
 }
 
 func roleListItem(role models.Role) RoleListItem {
-	return RoleListItem{ID: idString(role.ID), Name: role.Name, DisplayName: role.DisplayName, Description: role.Description, IsSystem: role.IsSystem}
+	permissions := make([]string, 0, len(role.Permissions))
+	for _, permission := range role.Permissions {
+		permissions = append(permissions, permission.Code)
+	}
+	return RoleListItem{ID: idString(role.ID), Name: role.Name, DisplayName: role.DisplayName, Description: role.Description, IsSystem: role.IsSystem, Permissions: permissions}
 }
 
 func permissionListItem(permission models.Permission) PermissionListItem {

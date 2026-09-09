@@ -11,7 +11,7 @@
     "lint": "biome lint .",
     "format": "prettier --check . --experimental-cli",
     "format:fix": "prettier --write . --experimental-cli",
-    "test:unit": "node --experimental-strip-types --test app/core/extensions/plugin-registry.test.ts app/core/permissions/permission.service.test.ts app/modules/module-registry.test.ts app/resource-engine/resource/remote-provider.test.ts",
+    "test:unit": "node --experimental-strip-types --test app/core/extensions/plugin-registry.test.ts app/core/permissions/permission.service.test.ts app/modules/module-registry.test.ts app/core/api/core-resource-mappers.test.ts app/resource-engine/resource/remote-provider.test.ts",
     "typecheck": "react-router typegen && tsc",
     "validate": "pnpm run lint && pnpm run format && pnpm run typecheck"
   },

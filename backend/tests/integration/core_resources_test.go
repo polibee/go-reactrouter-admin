@@ -96,6 +96,9 @@ func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	s.Require().NoError(err)
 	permissionResponse.AssertCreated()
 	permissionID := responseID(s.T(), permissionResponse)
+	permissionDetail, err := request.Get("/api/v1/admin/permissions/" + permissionID)
+	s.Require().NoError(err)
+	s.Require().True(permissionDetail.IsSuccessful(), "permission detail should return 2xx")
 
 	updatedPermission, err := request.Put("/api/v1/admin/permissions/"+permissionID, bytes.NewReader(jsonBytes(map[string]any{
 		"code":         "integration.read.updated",
@@ -112,6 +115,9 @@ func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	s.Require().NoError(err)
 	roleResponse.AssertCreated()
 	roleID := responseID(s.T(), roleResponse)
+	roleDetail, err := request.Get("/api/v1/admin/roles/" + roleID)
+	s.Require().NoError(err)
+	s.Require().True(roleDetail.IsSuccessful(), "role detail should return 2xx")
 
 	updatedRole, err := request.Put("/api/v1/admin/roles/"+roleID, bytes.NewReader(jsonBytes(map[string]any{
 		"name":         "integration-editor-updated",
@@ -129,6 +135,9 @@ func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	s.Require().NoError(err)
 	userResponse.AssertCreated()
 	userID := responseID(s.T(), userResponse)
+	userDetail, err := request.Get("/api/v1/admin/users/" + userID)
+	s.Require().NoError(err)
+	s.Require().True(userDetail.IsSuccessful(), "user detail should return 2xx")
 
 	updatedUser, err := request.Put("/api/v1/admin/users/"+userID, bytes.NewReader(jsonBytes(map[string]any{
 		"name":     "Managed User Updated",
@@ -147,6 +156,9 @@ func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	s.Require().NoError(err)
 	menuResponse.AssertCreated()
 	menuID := responseID(s.T(), menuResponse)
+	menuDetail, err := request.Get("/api/v1/admin/menus/" + menuID)
+	s.Require().NoError(err)
+	s.Require().True(menuDetail.IsSuccessful(), "menu detail should return 2xx")
 
 	updatedMenu, err := request.Put("/api/v1/admin/menus/"+menuID, bytes.NewReader(jsonBytes(map[string]any{
 		"key":        "integration.menu.updated",
@@ -171,6 +183,9 @@ func (s *CoreResourcesTestSuite) TestCoreResourceLifecycleAndAudit() {
 	s.Require().NoError(err)
 	settingResponse.AssertCreated()
 	settingID := responseID(s.T(), settingResponse)
+	settingDetail, err := request.Get("/api/v1/admin/settings/" + settingID)
+	s.Require().NoError(err)
+	s.Require().True(settingDetail.IsSuccessful(), "setting detail should return 2xx")
 
 	updatedSetting, err := request.Put("/api/v1/admin/settings/"+settingID, bytes.NewReader(jsonBytes(map[string]any{
 		"key":   "integration.setting.updated",

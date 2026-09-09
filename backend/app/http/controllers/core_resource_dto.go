@@ -12,11 +12,12 @@ type UserListItem struct {
 }
 
 type RoleListItem struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	DisplayName string  `json:"display_name"`
-	Description *string `json:"description,omitempty"`
-	IsSystem    bool    `json:"is_system"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	DisplayName string   `json:"display_name"`
+	Description *string  `json:"description,omitempty"`
+	IsSystem    bool     `json:"is_system"`
+	Permissions []string `json:"permissions"`
 }
 
 type PermissionListItem struct {

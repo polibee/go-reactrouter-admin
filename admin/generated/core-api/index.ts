@@ -93,6 +93,7 @@ export interface RoleListItem {
   display_name: string
   description?: string | null
   is_system: boolean
+  permissions: Array<string>
 }
 
 
@@ -183,6 +184,22 @@ export function deleteUser(id: string, options?: RequestOptions): Promise<ApiRes
 
 export function getCurrentUser(options?: RequestOptions): Promise<ApiResponse<AuthUser>> {
   return request<AuthUser>('GET', `/api/v1/auth/me`, undefined, options)
+}
+
+export function getMenu(id: string, options?: RequestOptions): Promise<ApiResponse<MenuListItem>> {
+  return request<MenuListItem>('GET', `/api/v1/admin/menus/${id}`, undefined, options)
+}
+
+export function getPermission(id: string, options?: RequestOptions): Promise<ApiResponse<PermissionListItem>> {
+  return request<PermissionListItem>('GET', `/api/v1/admin/permissions/${id}`, undefined, options)
+}
+
+export function getRole(id: string, options?: RequestOptions): Promise<ApiResponse<RoleListItem>> {
+  return request<RoleListItem>('GET', `/api/v1/admin/roles/${id}`, undefined, options)
+}
+
+export function getSetting(id: string, options?: RequestOptions): Promise<ApiResponse<SettingListItem>> {
+  return request<SettingListItem>('GET', `/api/v1/admin/settings/${id}`, undefined, options)
 }
 
 export function getUser(id: string, options?: RequestOptions): Promise<ApiResponse<UserListItem>> {

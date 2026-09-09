@@ -38,14 +38,26 @@ func API() {
 	admin.Middleware(middleware.RequirePermission("roles.view", resolver)).Get("/roles", func(ctx http.Context) http.Response {
 		return resourceController.Roles(ctx)
 	})
+	admin.Middleware(middleware.RequirePermission("roles.view", resolver)).Get("/roles/{id}", func(ctx http.Context) http.Response {
+		return resourceController.Role(ctx)
+	})
 	admin.Middleware(middleware.RequirePermission("permissions.view", resolver)).Get("/permissions", func(ctx http.Context) http.Response {
 		return resourceController.Permissions(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("permissions.view", resolver)).Get("/permissions/{id}", func(ctx http.Context) http.Response {
+		return resourceController.Permission(ctx)
 	})
 	admin.Middleware(middleware.RequirePermission("menus.view", resolver)).Get("/menus", func(ctx http.Context) http.Response {
 		return resourceController.Menus(ctx)
 	})
+	admin.Middleware(middleware.RequirePermission("menus.view", resolver)).Get("/menus/{id}", func(ctx http.Context) http.Response {
+		return resourceController.Menu(ctx)
+	})
 	admin.Middleware(middleware.RequirePermission("settings.view", resolver)).Get("/settings", func(ctx http.Context) http.Response {
 		return resourceController.Settings(ctx)
+	})
+	admin.Middleware(middleware.RequirePermission("settings.view", resolver)).Get("/settings/{id}", func(ctx http.Context) http.Response {
+		return resourceController.Setting(ctx)
 	})
 	admin.Middleware(middleware.RequirePermission("audit.view", resolver)).Get("/audit-logs", func(ctx http.Context) http.Response {
 		return resourceController.AuditLogs(ctx)

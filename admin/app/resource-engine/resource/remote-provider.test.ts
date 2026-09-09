@@ -70,5 +70,7 @@ test('remote provider preserves normalized API errors', async () => {
     delete: async () => response(null),
   })
 
-  await assert.rejects(() => provider.create?.({ name: 'bad' }), error)
+  const create = provider.create
+  if (!create) throw new Error('create provider method is required for this test')
+  await assert.rejects(() => create({ name: 'bad' }), error)
 })

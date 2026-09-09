@@ -92,25 +92,25 @@
       "$ref": "#/components/pathItems/Roles"
     },
     "/api/v1/admin/roles/{id}": {
-      "$ref": "#/components/pathItems/Role"
+      "$ref": "#/components/pathItems/RoleWithGet"
     },
     "/api/v1/admin/permissions": {
       "$ref": "#/components/pathItems/Permissions"
     },
     "/api/v1/admin/permissions/{id}": {
-      "$ref": "#/components/pathItems/Permission"
+      "$ref": "#/components/pathItems/PermissionWithGet"
     },
     "/api/v1/admin/menus": {
       "$ref": "#/components/pathItems/Menus"
     },
     "/api/v1/admin/menus/{id}": {
-      "$ref": "#/components/pathItems/Menu"
+      "$ref": "#/components/pathItems/MenuWithGet"
     },
     "/api/v1/admin/settings": {
       "$ref": "#/components/pathItems/Settings"
     },
     "/api/v1/admin/settings/{id}": {
-      "$ref": "#/components/pathItems/Setting"
+      "$ref": "#/components/pathItems/SettingWithGet"
     },
     "/api/v1/admin/audit-logs": {
       "$ref": "#/components/pathItems/AuditLogs"
@@ -428,7 +428,8 @@
           "id",
           "name",
           "display_name",
-          "is_system"
+          "is_system",
+          "permissions"
         ],
         "properties": {
           "id": {
@@ -448,6 +449,12 @@
           },
           "is_system": {
             "type": "boolean"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -969,6 +976,50 @@
           "$ref": "#/components/x-operations/deleteUser"
         }
       },
+      "RoleWithGet": {
+        "get": {
+          "$ref": "#/components/x-operations/getRole"
+        },
+        "put": {
+          "$ref": "#/components/x-operations/updateRole"
+        },
+        "delete": {
+          "$ref": "#/components/x-operations/deleteRole"
+        }
+      },
+      "PermissionWithGet": {
+        "get": {
+          "$ref": "#/components/x-operations/getPermission"
+        },
+        "put": {
+          "$ref": "#/components/x-operations/updatePermission"
+        },
+        "delete": {
+          "$ref": "#/components/x-operations/deletePermission"
+        }
+      },
+      "MenuWithGet": {
+        "get": {
+          "$ref": "#/components/x-operations/getMenu"
+        },
+        "put": {
+          "$ref": "#/components/x-operations/updateMenu"
+        },
+        "delete": {
+          "$ref": "#/components/x-operations/deleteMenu"
+        }
+      },
+      "SettingWithGet": {
+        "get": {
+          "$ref": "#/components/x-operations/getSetting"
+        },
+        "put": {
+          "$ref": "#/components/x-operations/updateSetting"
+        },
+        "delete": {
+          "$ref": "#/components/x-operations/deleteSetting"
+        }
+      },
       "Users": {
         "get": {
           "$ref": "#/components/x-operations/listUsers"
@@ -1076,6 +1127,134 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/UserResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "getRole": {
+        "operationId": "getRole",
+        "summary": "Read a Core role",
+        "x-permission": "roles.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RoleResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "getPermission": {
+        "operationId": "getPermission",
+        "summary": "Read a Core permission",
+        "x-permission": "permissions.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PermissionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "getMenu": {
+        "operationId": "getMenu",
+        "summary": "Read a Core menu",
+        "x-permission": "menus.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MenuResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiErrorResponse"
+          }
+        }
+      },
+      "getSetting": {
+        "operationId": "getSetting",
+        "summary": "Read a Core setting",
+        "x-permission": "settings.view",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SettingResponse"
           },
           "401": {
             "$ref": "#/components/responses/ApiErrorResponse"
@@ -1754,18 +1933,22 @@
     "updateUser": "users.update",
     "deleteUser": "users.delete",
     "listRoles": "roles.view",
+    "getRole": "roles.view",
     "createRole": "roles.create",
     "updateRole": "roles.update",
     "deleteRole": "roles.delete",
     "listPermissions": "permissions.view",
+    "getPermission": "permissions.view",
     "createPermission": "permissions.create",
     "updatePermission": "permissions.update",
     "deletePermission": "permissions.delete",
     "listMenus": "menus.view",
+    "getMenu": "menus.view",
     "createMenu": "menus.create",
     "updateMenu": "menus.update",
     "deleteMenu": "menus.delete",
     "listSettings": "settings.view",
+    "getSetting": "settings.view",
     "createSetting": "settings.create",
     "updateSetting": "settings.update",
     "deleteSetting": "settings.delete",

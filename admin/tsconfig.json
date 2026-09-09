@@ -25,7 +25,8 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "~/*": ["./app/*"],
-      "@/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "@generated/*": ["./generated/*"]
     },
 
     "noUnusedLocals": true,
